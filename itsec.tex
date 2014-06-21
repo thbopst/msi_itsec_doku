@@ -1,0 +1,95 @@
+% IT-Sicherheitsarchitekturen Ausarbeitung
+% Julian Bayer, Thomas Bopst, Felix Schuckert
+% HTWG-Konstanz
+%
+% Date: SS2014
+%
+
+\documentclass[11pt,a4paper]{report}
+
+% Own packages
+\usepackage[utf8]{inputenc}
+\usepackage[german]{babel}
+\usepackage{courier}
+\usepackage{listings}
+%\lstset{numbers=left, numberstyle=\tiny, numbersep=20pt} % Programmcode einfügen
+\lstset{basicstyle=\footnotesize\ttfamily, breaklines=true}
+\lstset{language=XML}
+\lstset{inputencoding=utf8}
+\selectlanguage{german}
+
+
+%\usepackage[printonlyused]{acronym}
+% PDF Eigenschaften
+% -----------------
+\usepackage
+[
+	colorlinks = false,
+	bookmarks = true,
+	pdftitle={IT-Sicherheitsarchitekturen (MSI SS14)},
+	pdfauthor={Julian Bayer, Thomas Bopst, Felix Schuckert},
+	pdfsubject={MSI IT-Sicherheitsarchitekturen},
+	pdfkeywords={HTWG-Konstanz, IT-SEC, MSI},
+	urlcolor=blue,
+	pdfstartview=FitH
+]{hyperref}
+
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-40pt}{20pt}
+
+% HTWG-Template
+\usepackage{graphicx}
+\usepackage{a4wide} % HTWG a4
+%\usepackage[english]{babel}
+
+% HTWG-Template
+\newcommand{\thema}{Firewall und Client-to-Lan VPN}
+\newcommand{\abgabedatum}{01.01.1900}
+\newcommand{\autor}{Julian Bayer\\ Thomas Bopst\\ Felix Schuckert}
+
+\begin{document}
+
+% select language
+
+ % set pagecount style to i,ii,...
+\setcounter{page}{1}
+\pagenumbering{roman}
+
+
+% HTWG-Template
+% -------------
+\include{chapters/cover}
+
+
+% change language to english
+
+% Abbreviations
+%\include{chapters/abbreviation}
+%\newpage
+
+% Table of contents
+\tableofcontents
+\newpage
+%\listoffigures
+%\listoftables
+
+% Content
+% -------
+\setcounter{page}{1} % set pagecount style to 1, 2, ...
+\pagenumbering{arabic}
+
+\include{chapters/firewall}
+\include{chapters/vpn}
+\include{chapters/verifikation}
+
+
+%\appendix
+%\include{chapters/appendix}
+
+\addcontentsline{toc}{chapter}{Literaturverzeichnis} %References
+\bibliographystyle{IEEEtranS}
+\bibliography{bib/references}
+
+\end{document}
