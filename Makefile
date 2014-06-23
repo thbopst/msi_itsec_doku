@@ -4,10 +4,10 @@ MAINTEX = itsec
 CHAPTER = chapters/
 
 pdf:
-	pdflatex $(MAINTEX).tex
+	pdflatex $(MAINTEX).tex -file-line-error
 #	bibtex $(MAINTEX).aux
-	pdflatex $(MAINTEX).tex
-	pdflatex $(MAINTEX).tex
+	pdflatex $(MAINTEX).tex -file-line-error
+	pdflatex $(MAINTEX).tex -file-line-error
 	open $(MAINTEX).pdf
 
 clean:

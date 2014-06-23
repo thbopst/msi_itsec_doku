@@ -1,1 +1,32 @@
 \chapter{Client-to-LAN VPN}
+
+\section{Aufgabenstellung}
+
+Mitarbeiter von Firma A, sollen die Möglichkeit haben von überall arbeiten zu können und von dort auch Zugriff auf das interne Firmen Netzwerk zu erhalten.
+Vorrausgesetzt wird hierbei selbstverständlich der Zugang zum Internet.
+
+Realisiert werden soll dies mittels einer Client-to-LAN VPN-Verbindung die technisch mittels der freien Software \emph{OpenVPN} implementiert werden soll.
+
+\section{Implementierung}
+
+Um eine Verbindung zwischen einem externen Mitarbeiter bzw. dem externen Gerät und dem internen Netzwerk von Firma A herstellen zu können muss einerseits ein \textbf{Server} den VPN Dienst anbieten und andererseits muss der \textbf{Client} so konfiguriert sein, dass er sich mit diesem Dienst verbinden kann.
+Als Server dient die innere Firewall \emph{fw2.firma-a.f223}, denn nur auf dieser besteht die Möglichkeit den VPN-Server so einzurichten, damit die sich verbindenden Clients zugriff auf das Intranet erhalten.
+Beim Client handelt es sich um den externen Laptop \emph{lap01.internet.f223}.
+
+Im Folgenden wird die Installation und Konfiguration der OpenVPN Software auf Client und Server erläutert.
+
+
+\subsection{Server}
+
+Auf dem der internen Firewall von Firma a müssen zunänchst die benötigten Software Packete installiert werden. Hierbei handelt es sich um das Packet \emph{openvpn}, welches die OpenVPN Software enthält. Zusätzlich wird noch das Packet \emph{bridge-utils} benötigt, welches zur Konfiguration der Bridge zwischen des von OpenVPN bereitgestellten Neztwerkinterfaces \emph{tap0} und dem normalen Netzwerkadapter \emph{eth0}, mit dem das Intranet verbunden ist, zu verbinden.
+
+Die Installation der Packete erfolgt mittels der folgenden Befehle.
+
+\begin{lstlisting}
+apt-get install openvpn
+apt-get install bridge-utils
+\end{lstlisting}
+
+% Screenshot der ifconfig wenn VPN gestartet ist und wenn nicht
+
+\subsection{Client}
