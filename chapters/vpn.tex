@@ -10,15 +10,15 @@ Realisiert werden soll dies mittels einer Client-to-LAN VPN-Verbindung die techn
 \section{Implementierung}
 
 Um eine Verbindung zwischen einem externen Mitarbeiter bzw. dem externen Gerät und dem internen Netzwerk von Firma A herstellen zu können muss einerseits ein \textbf{Server} den VPN Dienst anbieten und andererseits muss der \textbf{Client} so konfiguriert sein, dass er sich mit diesem Dienst verbinden kann.
-Als Server dient die innere Firewall \emph{fw2.firma-a.f223}, denn nur auf dieser besteht die Möglichkeit den VPN-Server so einzurichten, damit die sich verbindenden Clients zugriff auf das Intranet erhalten.
-Beim Client handelt es sich um den externen Laptop \emph{lap01.internet.f223}.
+Als Server dient die innere Firewall \texttt{fw2.firma-a.f223}, denn nur auf dieser besteht die Möglichkeit den VPN-Server so einzurichten, damit die sich verbindenden Clients Zugriff auf das Intranet erhalten.
+Beim Client handelt es sich um den externen Laptop \texttt{lap01.internet.f223}.
 
 Im Folgenden wird die Installation und Konfiguration der OpenVPN Software auf Client und Server erläutert.
 
 
 \subsection{Server}
 
-Auf dem der internen Firewall von Firma a müssen zunänchst die benötigten Software Packete installiert werden. Hierbei handelt es sich um das Packet \emph{openvpn}, welches die OpenVPN Software enthält. Zusätzlich wird noch das Packet \emph{bridge-utils} benötigt, welches zur Konfiguration der Bridge zwischen des von OpenVPN bereitgestellten Neztwerkinterfaces \emph{tap0} und dem normalen Netzwerkadapter \emph{eth0}, mit dem das Intranet verbunden ist, zu verbinden.
+Auf der internen Firewall von Firma a müssen zunänchst die benötigten Software Packete installiert werden. Hierbei handelt es sich um das Packet \emph{openvpn}, welches die OpenVPN Software enthält. Zusätzlich wird noch das Packet \emph{bridge-utils} benötigt, welches zur Konfiguration der Bridge zwischen des von OpenVPN bereitgestellten Neztwerkinterfaces \emph{tap0} und dem normalen Netzwerkadapter \emph{eth0}, mit dem das Intranet verbunden ist, zu verbinden.
 
 Die Installation der Packete erfolgt mittels der folgenden Befehle.
 
@@ -27,6 +27,86 @@ apt-get install openvpn
 apt-get install bridge-utils
 \end{lstlisting}
 
+Die Authentifizierung eines Clients soll Zertifikatsbasiert erfolgen. OpenVPN setzt hierzu auf die Verwendung von \emph{X.509} Zertifikaten. Ein Client kann sich am Server nur anmelden, wenn er ein gültiges X.509 Zertifikat besitzt, welches von der gleichen Certification Authority ausgestellt wurde, wie das des OpenVPN-Servers. Zur Sicherung der Authentizität von Client und Server, sowie der Vertraulichkeit und Integrität der Kommunikation wird das SSL/TLS Protokoll verwendet. 
+
+\paragraph{Zertifikatsgenerierung}
+
+Zur Generierung des Serverzertifikats wird der \texttt{net1.internet.f223} Server benötigt. Auf ihm befindet sich eine Certification Authority, mit deren Hilfe das Zertifikat generiert werden kann.
+
+Hierzu muss als erstes der \textbf{geheime und öffentliche Schlüssel} des OpenVPN Servers mittels \emph{openssl} generiert werden. Der Schlüssel wird für das asymmetrische Verschlüsselungsverfahren \emph{RSA} generiert mit einer Moduluslänge von 1024 Bit.
+
+\begin{lstlisting}
+openssl genrsa -out vpnserver.key 1024
+\end{lstlisting}
+
+Mit Hilfe der genierierten Schlüssel kann nun die \textbf{Certificate Signing Request}, welche von der CA zur Zertifikatserstellung benötigt wird, mittels openssl erzeugt werden. Zuvor muss jedoch noch die Konfigurationsdatei (\texttt{req.cnf}) der CA vom \texttt{net1.internet.f223} Server mittels \emph{wget} heruntergeladen werden.
+
+\begin{lstlisting}
+wget http://net1.internet.f223/CA/CA-files/req.cnf
+openssl req -new -key vpnserver.key -config req.cnf -reqexts v3_req_srv -out vpnserver.csr
+\end{lstlisting}
+
+Nach der Erstellung der Certificate Sigining Request (\texttt{vpnserver.csr}) kann diese nun mit Hilfe des Webformulars zur CA hochgeladen werden.
+Anschließend muss das Skript zur Zertifikatsgenerierung auf dem \texttt{net1.internet.f223} Server, wie in der Laborbeschreibung beschrieben, ausgeführt werden. Hierbei muss der \emph{Distinguished Name} des Zertifikatsnehmers eingegeben werden, welcher den Zertifikatsnehmer identifiziert.
+
+Nach der Generierung des Zertifikats muss dieses wieder auf den \texttt{fw2.firma-a.f223} Server übertragen werden. Zusätzlich muss noch das \emph{Chain Certificate} (\texttt{f223CA.chain.cert}) von der CA heruntergeladen werden. Es wird von Seiten des OpenVPN Servers zur Validierung der Client-Zertifikate benötigt.
+
+Abschlißend müssen noch die \emph{Diffie-Hellman} Schlüsselparameter generiert werden, die von OpenVPN für zur Schlüsselableitung in der SSL/TLS Verbindung benötigt werden.
+
+\begin{lstlisting}
+openssl dhparam -out dh1024.pem 1024
+\end{lstlisting}
 % Screenshot der ifconfig wenn VPN gestartet ist und wenn nicht
+
+\paragraph{OpenVPN Konfiguration}
+
+Bei der Installation des OpenVPN Packets wird ein \textbf{initscript} mitgeliefert, um den OpenVPN Daemon zu starten. Dabei wird im Verzeichnis \texttt{\textbackslash etc\textbackslash openvpn\textbackslash} nach \texttt{*.conf} Dateien gesucht und für jede gefundene Konfigurationsdatei wird ein separater Daemon gestartet. Die von uns erstellte Konfigurationsdatei mit dem Namen \texttt{server.conf} befindet sich in diesem Verzeichnis. Hierbei handelt es sich um eine von OpenVPN mitgelieferte Beispielkonfigurationsdatei, die alle Konfigurationsparamter mit Beschreibung in auskommentierter Form enthält.
+
+Die nachfolgenden Listings beschreieben die von uns erstellte Server-Konfiguration:
+
+\lstinputlisting[
+    firstline=1,
+    lastline=8,
+    label = vpn:serverconf1,
+    caption={Teil 1 - OpenVPN Server-Konfiguration}
+]{code/vpn_server-plain.conf}
+
+Listing \ref{vpn:serverconf1} zeigt den ersten Teil der Konfiguration. Sie definiert die IPv4 Adresse und den Port, auf dem der OpenVPN Server auf eingehende Verbindungen warten soll. Hierbei handelt es sich um die IP-Adresse des Interface \texttt{eth1}, welches mit der \emph{DMZ} des Firmennetzes verbunden ist. Des Weiteren wird der Protokolltyp der Verbindung sowie der Name des lokalen Netzwerkinterfaces definiert, welches vom OpenVPN-Server Prozess für den Tunnel zwischen Client und Server verwendet werden soll. Hierrauf werden wir später noch genauer eingehen.
+
+\lstinputlisting[
+    firstline=10,
+    lastline=16,
+    label = vpn:serverconf2,
+    caption={Teil 2 - OpenVPN Server-Konfiguration}
+]{code/vpn_server-plain.conf}
+
+Im zweite Teil der Server-Konfiguration aus Listing \ref{vpn:serverconf2} wird nun das zuvor generierte Zertifikat sowie das Chain-Zertifikat und die Schlüsselparamter benötigt. Mit Hilfe des Chain-Zertifikats wird das Zertifikat des Clients, der eine Verbindung aufbauen möchte validiert, denn es dürfen nur Clients mit einem Zertifikat das von dieser CA (Chain-Zertifikat) ausgestellt wurde eine Verbindung aufbauen. Das Server-Zertifikat wird zur Authentisierung des Servers und zum Aufbau der SSL/TLS Verbindung benöigt wie auch die Diffie-Hellman Schlüsselparameter. Als Verschlüsselungsalgorithmus verwenden wir den symmetrischen AES-Algorithmus mit einer Schlüssellänge von 128 Bit im Cipher-Block-Chaining Betriebsmodus.
+
+\lstinputlisting[
+    firstline=18,
+    lastline=34,
+    label = vpn:serverconf3,
+    caption={Teil 3 - OpenVPN Server-Konfiguration}
+]{code/vpn_server-plain.conf}
+
+Im dritten Teil der Konfiguration in Listing \ref{vpn:serverconf3} wird als erstes eine Datei zur Speicherung des Mappings der Client IP-Adressen. Dies hat den Vorteil, dass falls die Verbindung zwischen VPN Server und Client abbricht, der Client vom Server wieder die selbe IP-Adresse zugewiesen bekommt. Als nächstes wird die IPv4-Adresse der Server-Bridge sowie die Subnetzmaske definiert. Hierbei handelt es sich um die selebe IPv4-Adresse die bereits oben erwähnt wurde. Die nachfolgenden beiden IP-Adressen definieren einen Bereich aus dem der OpenVPN-Server den Clients IP-Adressen frei zuteilen kann.
+
+Mit Hilfe der \texttt{client-to-client} Konfiguration wird festgelegt, dass ein Client andere Clients die sich ebenfalls per VPN verbunden haben sehen dürfen, was wir für eine sinnvolle Einstellung halten, falls zwei Mitarbeiter die beide ausserhalb der Firma arbeiten beispielsweise gemeinsam etwas entwickeln oder testen.
+Der Parameter \texttt{keepalive} definiert, dass alle 10 Sekunden eine Nachricht zum Client gesendet wird um zu überprüfen ob dieser noch da ist. Wird innerhalb von 120 Sekunden keine Antwort erhalten wird davon ausgegangen, dass keien Verbindung mehr besteht.
+
+Nachfolgend wird die Datenkompression durch den \texttt{comp-lzo} Parameter aktiviert. Der verwendete LZO-Kompressionsalgorithmuss ist speziell für verlustlose schnelle Kompression entwickelt worden.
+
+Mittels \texttt{max-clients} wird die maximale Anzahl an gleichzeitigen Clientverbindungen definiert. In unserem Fall sind es 14, da der definierte IP-Adressraum 14 Host-Adressen besitzt, was für das Labor ausreichend ist.
+
+Die \texttt{persist} Optionen, die per Default aktiviert sind, stellen sichher, dass OpenVPN sich beim ersten Start Informationen wie die beispielsweise die Schlüsselinformationen intern speichert und es somit beim späteren Start nicht zu Problemen kommt falls der Daemon mit eingeschränkten Rechten gestartet wird.
+
+Abschließend wird noch das Logging konfiguriert. Hierbei werden das File für den Statuslog und das normale Logfile definiert. Des Weiteren wird noch das Loglevel gesetzt. 4 entspricht hierbei dem Standard Loglevel. 5-6 können fürs Debugging von Verbindungsproblemen verwendet werden.
+
+\paragraph{Bridging Konfiguration}
+
+Um eine Client-to-LAN VPN mittels OpenVPN herstellen zu können bei der sich die \emph{Road Warrior} Clients ins Intranet integrieren als wären sie tatsächlich in der Firma muss die VPN im \emph{ethernet bridging mode} betrieben werden. Hierzu wird ein Bridge zwischen dem \texttt{tap0} und \texttt{eth0} device benötigt. Eine Ethernet-Bridge arbeitet auf Schicht 2 des OSI-Modells, sprich wie ein Switch. Sie leitet Packete aufgrund ihrer Ziel-MAC Adresse weiter in das entsprechnende physikalische Teilnetz. D.h. wenn beispielsweise \texttt{lap01.internet.f223} and \texttt{pc01.firma-a.f223} ein Packet sendet, so kommt dies als erstes auf dem \texttt{tap0} Interface des \texttt{fw2.firma-a.f223} an. Anschließend entscheidet die Bridge aufgrund der Ziel-MAC-Adresse dass das Packet ins Intranet weitergeleitet werden muss und schickt es somit weiter über das \texttt{eth0} Interface des Servers.
+
+Zur Implementierung einer solchen Bridge werden die \texttt{bridge-utils} benötigt. Das Erstellen und konfigurieren der Bridge kann durch ein von OpenVPN mitgeliefertes Script erledigt werden.
+
 
 \subsection{Client}
