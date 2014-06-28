@@ -5,7 +5,7 @@ CHAPTER = chapters/
 
 pdf:
 	pdflatex $(MAINTEX).tex -file-line-error
-#	bibtex $(MAINTEX).aux
+	bibtex $(MAINTEX).aux
 	pdflatex $(MAINTEX).tex -file-line-error
 	pdflatex $(MAINTEX).tex -file-line-error
 	open $(MAINTEX).pdf

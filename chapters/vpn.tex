@@ -16,7 +16,7 @@ Beim Client handelt es sich um den externen Laptop \texttt{lap01.internet.f223}.
 Im Folgenden wird die Installation und Konfiguration der OpenVPN Software auf Client und Server erläutert.
 
 
-\subsection{Server}
+\subsection{Server}\label{vpn:server}
 
 Auf der internen Firewall von Firma a müssen zunänchst die benötigten Software Packete installiert werden. Hierbei handelt es sich um das Packet \emph{openvpn}, welches die OpenVPN Software enthält. Zusätzlich wird noch das Packet \emph{bridge-utils} benötigt, welches zur Konfiguration der Bridge zwischen des von OpenVPN bereitgestellten Neztwerkinterfaces \emph{tap0} und dem normalen Netzwerkadapter \emph{eth0}, mit dem das Intranet verbunden ist, zu verbinden.
 
@@ -104,9 +104,109 @@ Abschließend wird noch das Logging konfiguriert. Hierbei werden das File für d
 
 \paragraph{Bridging Konfiguration}
 
-Um eine Client-to-LAN VPN mittels OpenVPN herstellen zu können bei der sich die \emph{Road Warrior} Clients ins Intranet integrieren als wären sie tatsächlich in der Firma muss die VPN im \emph{ethernet bridging mode} betrieben werden. Hierzu wird ein Bridge zwischen dem \texttt{tap0} und \texttt{eth0} device benötigt. Eine Ethernet-Bridge arbeitet auf Schicht 2 des OSI-Modells, sprich wie ein Switch. Sie leitet Packete aufgrund ihrer Ziel-MAC Adresse weiter in das entsprechnende physikalische Teilnetz. D.h. wenn beispielsweise \texttt{lap01.internet.f223} and \texttt{pc01.firma-a.f223} ein Packet sendet, so kommt dies als erstes auf dem \texttt{tap0} Interface des \texttt{fw2.firma-a.f223} an. Anschließend entscheidet die Bridge aufgrund der Ziel-MAC-Adresse dass das Packet ins Intranet weitergeleitet werden muss und schickt es somit weiter über das \texttt{eth0} Interface des Servers.
+Um eine Client-to-LAN VPN mittels OpenVPN herstellen zu können bei der sich die \emph{Road Warrior} Clients ins Intranet integrieren als wären sie tatsächlich in der Firma muss die VPN im \emph{ethernet bridging mode} betrieben werden. Hierzu wird ein Bridge zwischen dem \texttt{tap0} und \texttt{eth0} device benötigt. Eine Ethernet-Bridge arbeitet auf Schicht 2 des OSI-Modells, sprich wie ein Switch. Sie leitet Packete aufgrund ihrer Ziel-MAC Adresse weiter in das entsprechnende physikalische Teilnetz. D.h. wenn beispielsweise \texttt{lap01.internet.f223} an \texttt{pc01.firma-a.f223} ein Packet sendet, so kommt dies als erstes auf dem \texttt{tap0} Interface des \texttt{fw2.firma-a.f223} an. Anschließend entscheidet die Bridge aufgrund der Ziel-MAC-Adresse dass das Packet ins Intranet weitergeleitet werden muss und schickt es somit weiter über das \texttt{eth0} Interface des Servers.
 
 Zur Implementierung einer solchen Bridge werden die \texttt{bridge-utils} benötigt. Das Erstellen und konfigurieren der Bridge kann durch ein von OpenVPN mitgeliefertes Script erledigt werden.
 
+\lstinputlisting[
+    firstline=8,
+    lastline=20,
+    label = vpn:serverbridge,
+    caption={Ethernet Bridge Konfiguration}
+]{code/vpn-server_bridge-start}
+
+Listing \ref{vpn:serverbridge} zeigt den Anfang des \texttt{bridge-start} Shell-Scripts, welches zum Starten der Bridge benötigt wird. Der gezeigte Anfang enthält alle Konfigurationsparameter die benötigt werden. 
+Als erstes muss der Name, mit dem das Bridge-Interface angelegt werden soll, definiert werden. Anschließend werden die beiden Interfaces definiert, zwischen denen die Bridge erstellt werden soll. Dabei handelt es sich um das \texttt{tap0} Interface, welches durch OpenVPN angelegt wird und um das \texttt{eth0} Interface, welches die Verbindung zum Intranet darstellt.
+
+\lstinputlisting[
+    firstline=1,
+    lastline=35,
+    label = vpn:ifconfig,
+    caption={\texttt{ifconfig} Ausgabe}
+]{code/fw2_ifconfig.txt}
+
+Listing \ref{vpn:ifconfig} zeigt eine Teilausgabe des Befehls \texttt{ifconfig}, in der das erstellte Bridge-Interface sowie das tap0-Interface neben den beiden physikalischen Netzwerkschnittstellen gezeigt wird.
+
+\paragraph{Start Konfiguration}
+
+Wie bereits erwähnt liefert OpenVPN ein Skript mit, damit der OpenVPN-Server als Daemon gestartet werden kann.
+
+Die Aktivierung des Deamons beim start des Betriebsystems erfolgt mittels des folgenden Befehls.
+
+\begin{lstlisting}
+service openvpn start
+\end{lstlisting}
+
+Des Weiteren muss natürlich das \texttt{bridge-start} sowie das \texttt{bridge-stop} Shell-Skript beim Server start ausgeführt werden. 
+Hierzu wurde das \texttt{bridge-start} Shell-Skript in das Verzeichnis \texttt{/etc/network/if-up/} kopiert. Die Skripte, die sich in diesem Verzeichnis befinden werden nach dem das Netzwerkinterface gestartet wurde ausgeführt. Das \texttt{bridge-stop} Skript, welches die Bridge wieder entfernt, wurde im Verzeichnis \texttt{/etc/network/if-down} abgelegt. Es entfernt das Bridge-Interface wieder, nach dem die Interfaces vom System deaktiviert wurden.
 
 \subsection{Client}
+
+Wie bereits beim Server muss natürlich auch auf dem Client als erstes die OpenVPN Software installiert werden. Dies geschieht mittels des folgenden Befehls.
+
+\begin{lstlisting}
+sudo apt-get openvpn
+\end{lstlisting}
+
+Im Vergleich zum Server werden auf dem Client die \texttt{bridge-utils} nicht benötigt, da dieser keine Ethernet Bridge benötigt.
+
+Anschließend muss das X.509 Client-Zertifikat erstellt werden, welches OpenVPN für die Prüfung der Authentizität und zur Autentifikation benötigt.
+
+\paragraph{Zertifikatsgenerierung}
+
+Die Zertifikatsgenerierung erfolgt analog zur Zertifikatsgenerierung des Servers aus Sektion \ref{vpn:server} mit dem Unterschied, dass für den Client ein Client Zertifikat statt einem Serverzertifikat generiert werden muss.
+
+
+\begin{lstlisting}
+openssl genrsa -out vpn.key 1024
+openssl req -new -key vpn.key -config req.cnf -reqexts v3_req_usr -out vpn.csr
+\end{lstlisting}
+
+Hierfür muss als erstes wieder ein asymmetrisches Schlüsselpaar für den RSA-Algorithmus mit Schlüssellänge 1024 erzeugt werden. Anschließend wird einen Client \textbf{Certificate Signing Request} erstellt welche wie bereits zuvor auf den Zertifikatsserver, welcher sich auf dem \texttt{net1.internet.f223} Server befindet hochgeladen werden muss. Anschließend muss das Skript zur generierung des Clientzertifikats ausgeführt werden. Hierbei muss der Distinguished Name des Nutzers angegeben werden.
+Nach Abschluss der Generierung kann das Zertifikat vom Zertifikatsserver auf den Client heruntergeladen werden. Analog zum VPN-Server wird auch hier das \emph{Chain-Zertifikat} benötigt und muss somit ebenfalls runtergeladen werden.
+
+\paragraph{OpenVPN Konfiguration}
+
+Anschließend kann mit der Konfiguration des OpenVPN Clients begonnen werden.
+
+\lstinputlisting[
+    firstline=1,
+    lastline=36,
+    label = vpn:clientconf,
+    caption={OpenVPN Client-Konfiguration}
+]{code/vpn_client-plain.conf}
+
+Listing \ref{vpn:clientconf} zeigt die Konfigurationsdatei des OpenVPN-Clients. Zu oberst wird definiert, dass es sich hierbei um eine client konfiguration handelt, damit OpenVPN weiß das es als Client und nicht als Server zu agieren hat.
+
+Anschließend wird das Netzwerk-Interface definiert, über das die Kommunikation abgewickelt werden soll. Wie beim Server handelt es sich auch beim Client um das \texttt{tap0} Interface, welches von OpenVPN angelegt wird und bei einer Verbindung im Client-to-LAN Modus verwendet werden muss.
+
+Als Protokolltyp muss selbstverständlich der selbe wie auf dem Server gewählt werden. Anschließend wird die IP-Adresse und der Port definiert auf dem sich der OpenVPN Server befindet. Wir haben hierbei absichtlich die IP-Adresse verwendet statt der Domain, da der DNS-Server auf dem \texttt{net1.internet.f223}, für den wir keine root-Rechte besitzen, nicht immer einwandfrei funktioniert. Bei der verwendeten IP-Adresse handelt es sich um die äußere Firewall \texttt{fw1.firma-a.f223}, denn nur diese kann vom Internet direkt angesprochen werden. Sie leitet die Anfrage, an den eigentlichen OpenVPN-Server auf \texttt{fw2.firma-a.f223} weiter, wie in Kapitel \ref{fw} beschrieben.
+
+Anschließend wir definiert, dass OpenVPN bei einem Verbindungsabbruch oder bei Verbindungsproblemen endlos weiter versuchen soll sich mit dem Server zu verbinden, bis der Prozess vom User abgebrochen wird.
+
+Die Option \texttt{nobind} teilt dem Client mit, dass er keinen speziellen Port auf dem Client für die Verbindung verwenden muss sondern irgend einen frei verfügbaren auswählen kann.
+
+Anschließend werden die persist Optionen, wie bereits in Kapitel \ref{vpn:server} beschrieben, definiert.
+
+Damit sich der Client beim Server authorisieren kann müssen dementsprechend auch die zu verwendenden Zertifikate konfiguriert werden. Hierbei handelt es sich einerseits um das Chain-Zertifikat, welches die Verbindung vom Root-Zertifikat (Vertrauensanker) zum Client-Zertifikat herstellt. Beide werden zum OpenVPN-Server übertragen, und validiert. Zudem benötigt der client natürlich noch seinen eigenen geheimen/privaten Schlüssel um damit Daten ver bzw. entschlüsseln zu können. Zudem muss dem Client noch mitgeteilt werden welcher Verschlüsselungsalgorithmus \texttt{cipher} vom Server genutzt wird.
+
+Zu guter letzt wird noch die Datenkompression konfiguriert, wobei es sich natürlich auf /Client und Server um die selbe handeln muss. Der letzte Eintrag definiert das Loglevel, wobei es sich um das default Loglevel handelt. Um Verbindungsprobleme zu debuggen bietet es sich an, dass Loglevel zu erhöhen.
+
+Da die Konfigurationsdatei nur für den \emph{itsec} Benutzer des Rechners gedacht ist, befindet sich die Datei in einem versteckten Verzeichnis im Home-Verzeichnis des Benutzers (\texttt{\textbackslash home\textbackslash itsec\textbackslash .openvpn\textbackslash client.conf})
+
+\paragraph{VPN-Verbindung starten}
+
+Um die Verbindung starten zu können wurde ein Skript angelegt, welches der Benutzer nur noch mittels folgenden Befehls in seinem Home-Verzeichnis ausführen muss.
+
+\begin{lstlisting}
+./openvpn-start
+\end{lstlisting}
+
+\lstinputlisting[
+    firstline=1,
+    lastline=3,
+    label = vpn:clientstart,
+    caption={OpenVPN Client Start-Skript}
+]{code/vpn_client_openvpn-start}
+
+Listing \ref{vpn:clientstart} zeigt den Inhalt des Skripts. Es ruft lediglich mit \emph{root-Rechten} das Programm OpenVPN auf und teilt ihm mit wo sich die Konfigurations-Datei befindet.
