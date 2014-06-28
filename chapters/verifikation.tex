@@ -1,1 +1,16 @@
 \chapter{Verifikation}
+\section{Netzwerkkonfiguration}
+Die korrekte Konfiguration des Netzwerks konnte mittels des ifconfig-Befehls geprüft werden: %Hier Referenzen zu den Abb. der ifconfigs
+
+%Screenshots(?) der ifconfigs
+
+\section{Network-Address-Translation}
+Zur Verifikation der NAT-Funktionalität war es zunächst nötig zu prüfen, ob das Forwarding zwischen den Netzwerkinterfaces funktionierte. Dazu wurde von einem Client aus dem Firmen-LAN zunächst der Webserver in der DMZ (Forwarding von fw2) und anschließend ein Server im "`Internet"' gepingt (Forwarding von fw1). %Referenz auf Screenshots
+
+%screenshots
+
+Das IP-Masquerading konnte jeweils mit zwei Logins auf dem Webserver, sowie dem Server im Internet sichergestellt werden: Auf dem Client wurden zwei SSH-Logins auf den entsprechenden Servern vorgenommen. Beim zweiten Login wurde dann die IP-Adresse des jeweils vorhergehenden Logins angezeigt, was jeweils den IP-Adressen der Firewalls entsprach.
+
+%screenshots?
+
+Das korrekte Port-Forwarding der Dienste Webserver, Mailserver und VPN-Server, dass am äußeren Server eingerichtet werden musste konnte durch Nutzung der entsprechenden Dienste verifiziert werden.
