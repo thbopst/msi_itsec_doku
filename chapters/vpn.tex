@@ -148,7 +148,7 @@ service openvpn start
 Des Weiteren muss natürlich das \texttt{bridge-start} sowie das \texttt{bridge-stop} Shell-Skript beim Server start ausgeführt werden. 
 Hierzu wurde das \texttt{bridge-start} Shell-Skript in das Verzeichnis \texttt{/etc/network/if-up/} kopiert. Die Skripte, die sich in diesem Verzeichnis befinden werden nach dem das Netzwerkinterface gestartet wurde ausgeführt. Das \texttt{bridge-stop} Skript, welches die Bridge wieder entfernt, wurde im Verzeichnis \texttt{/etc/network/if-down} abgelegt. Es entfernt das Bridge-Interface wieder, nach dem die Schnittstellen vom System deaktiviert wurden.
 
-\subsection{Client}
+\subsection{Client}\label{vpn:client}
 
 Wie bereits beim Server, muss natürlich auch auf dem Client als erstes die OpenVPN Software installiert werden. Dies geschieht mittels des folgenden Befehls.
 
