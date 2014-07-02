@@ -30,12 +30,23 @@ Zur Verifikation der NAT-Funktionalität war es zunächst nötig zu prüfen, ob 
 	\label{fig:pc01_traceroute_net1}
 \end{figure}
 
+Zum Nachweis, dass das IP-MAsquerading funtioniert, wurde von pc01.firma-a.f223 ein Ping-Befehl auf 10.1.0.1 (net1.internet.f223) ausgeführt. Der Netzwerkverkehr dieses Ping-Befehls wurde jeweils in der DMZ (Abb. \ref{fig:ws_dmz}) und im Internet (Abb. \ref{fig:ws_internet}) mit Wireshark mitgeschnitten. Dabei ist sichtbar, dass die Quell-IP-Adresse beim Ping-Request jeweils mit der IP der zuletzt passierten Firewall (fw2 in der DMZ, fw1 im Internet) maskiert wurde.
 
-Das IP-Masquerading konnte jeweils mit zwei Logins auf dem Webserver, sowie dem Server im Internet sichergestellt werden: Auf dem Client wurden zwei SSH-Logins auf den entsprechenden Servern vorgenommen. Beim zweiten Login wurde dann die IP-Adresse des jeweils vorhergehenden Logins angezeigt, was jeweils den IP-Adressen der Firewalls entsprach.
+\begin{figure}[h!]
+	\centering
+		\includegraphics[width=0.7\textwidth]{figures/ws_dmz.png}
+	\caption{Wireshark-Mittschnitt des Ping in der DMZ}
+	\label{fig:ws_dmz}
+\end{figure}
 
-%screenshots?
+\begin{figure}[h!]
+	\centering
+		\includegraphics[width=0.7\textwidth]{figures/ws_internet.png}
+	\caption{Wireshark-Mittschnitt des Ping im Internet}
+	\label{fig:ws_internet}
+\end{figure}
 
-Das korrekte Port-Forwarding der Dienste Webserver, Mailserver und VPN-Server, dass am äußeren Server eingerichtet werden musste konnte durch Nutzung der entsprechenden Dienste verifiziert werden.
+Das korrekte Port-Forwarding der Dienste Webserver, Mailserver und VPN-Server, das am äußeren Server eingerichtet werden musste, konnte durch Nutzung der entsprechenden Dienste auf lap01.internet.f223 verifiziert werden.
 
 \section{VPN}
 Die Korrektheit der VPN-Konfiguration wurde folgendermaßen getestet:
