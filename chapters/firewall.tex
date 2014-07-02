@@ -20,16 +20,15 @@ In der Abbildung \ref{fig:firewall_uebersicht} ist zu sehen das es verschiedene 
 	Hierbei handelt es sich um ein Paket, welche von einem lokalen Prozess abgesendet wird.
 \end{itemize}
 Die Regeln beschränken sich auf die Schicht 3 und 4 von den zu übertragenden Paketen. Somit hat man Zugriff auf die Übertragungsflags, IP-Adressen, Ports und die zugehörigen Netzwerkinterfaces. IPTables ermöglicht verbindungsorientierte Paketfilter, somit kann zum Beispiel überprüft werden ob eine Verbindung related ist, dass heißt es wird eine Unterverbindung aufgebaut, wo schon eine Verbindung zwischen den Rechnern besteht. Des weiteren ermöglicht IPTables eine NAT mit Masquerade Funktion. Das bedeutet es versteckt die Rechner von einem Netzwerk vor dem anderen.
+// TODO
 
-\
-
- Damit die Regeln nach einem Neustart des Rechners erhalten werden. Müssen diese in eine Datei ausgelagert werden.
+Damit die Regeln nach einem Neustart des Rechners erhalten werden. Müssen diese in eine Datei ausgelagert werden.
 
 
 \section{Anforderungen}
 Indem Praktikumsaufbau gibt es zwei Firewalls. Hierbei handelt es sich um eine Äußere Firewall, welche wie in Abbildung \ref{fig:Netzplan} zu erkennen die Verbindungen zwischen der DMZ und dem Internet regelt. Und die Rechner aus der DMZ werden vor Rechnern aus dem Internet versteckt. Die innere Firewall hat dabei dieselben Aufgaben nur ist sie zwischen der DMZ und dem Firmennetzwerk platziert.
 
-\subsection{Innere Firewall}
+\subsection{Innere Firewall (FW2)}
 \begin{itemize}
 \item Masquerading von dem Firmennetz zur DMZ. Somit dürfen die IP Adressen der Rechner aus dem Firmennetz in der DMZ nicht erkennbar sein, sondern als IP Adresse ist die der Firewall zu sehen.
 \item Es dürfen keine neuen Verbindungen von der DMZ in das interne Firmennetz aufgebaut werden.
@@ -37,13 +36,35 @@ Indem Praktikumsaufbau gibt es zwei Firewalls. Hierbei handelt es sich um eine �
 \item Auf der inneren Firewall läuft der VPN Prozess und dieser muss aus dem Internet erreichbar sein.	
 \end{itemize}
 
-\subsection{Äußere Firewall}
+\subsection{Äußere Firewall (FW1)}
 \begin{itemize}
 \item Masquerading von der DMZ zum Internet.
 \item Der Webserver aus der DMZ soll von dem Internet über die üblichen Ports erreichbar sein. Darunter fallen folgende Ports. 80(HTTP), 443(HTTPS), 25(SMTP), 587(SMTP), 465(SMTPS), 993(IMAPS), 995(POP3S), 143(IMAP), 110(POP3), 53(DNS)
 \item Die interne Firewall muss erreichbar sein für das VPN. Somit müssen folgende Ports auf die innere Firewall weitergeleitet werden. 1195(VPN: Client to Lan), 1194(VPN: Lan to Lan)
 \end{itemize}
 
+\section{Implementierung}
+Damit die Praktikumsaufgabe reibungslos bearbeitet werden kann, wurde zu Anfang das NAT/Masquerading eingerichtet. Daraufhin wurde das VPN eingerichtet und getestet. Und sobald alle Funktionalitäten geprüft waren, wurde der Paketfilter eingerichtet. Durch diese Reihenfolge konnte sichergestellt werden, dass der Paketfilter von der Firewall nicht die Funktionalität des VPN Dienstes stört.
+
+IPTables speichert seine Tabelleneinträge nur im Arbeitsspeicher, deswegen sind die Einträge welche hinzugefügt werden nach einem Neustart des Rechners wieder verschwunden. Damit die Einträge gespeichert werden, müssen diese mittels dem iptables-save Befehl in eine Datei gespeichert werden. 
+\begin{lstlisting}
+iptables-save > /etc/iptables.rules
+\end{lstlisting}
+Durch diesen Befehl werden alle IPTables Einträge in /etc/iptables.rules gespeichert. Damit nach einem Neustart diese Einträge auch geladen werden, muss unter /etc/network/if-pre-up.d/ ein ein Skript erstellt werden, welches die gespeicherten Einträge mittels iptables-restore aus der Datei lädt. Debian führt alles ausführbaren Skripte in dem Ordner if-pre-up.d aus bevor die Netzwerkdienste gestartet werden. Das Skript sieht wie folgt aus:
+\begin{lstlisting}[caption={/etc/network/if-pre-up.d/iptables}]
+iptables-restore < /etc/iptables.rules
+\end{lstlisting}
+Mit dem Befehl "chmod +x" wurde bei dem Skript das ausführbar Flag gesetzt. Somit werden die IPTables Regeln aus der Datei /etc/iptables.rules bei jedem Start des Rechners geladen. Somit können die IPTables mit normalen Befehlen eingerichtet werden und durch den iptables-save Befehl werden. Dieses Konfiguration wurde auf beiden Rechnern eingerichtet.
 
 
-
+\subsection{NAT / Masquerading}
+Das Einrichten von Masquerading erfolgte auf beiden Firewall Rechnern gleich, da diese Funktionalität auf beiden die selbe ist. Die Netzwerkschnittstelle "eth0" ist mit dem Netzwerk verbunden, welches versteckt werden soll. Wobei "eth1" mit dem Netzwerk verbunden ist, welchem nicht zu vertrauen ist. Das ist einmal die DMZ von dem firmeninternen Netzwerk und das Internet gesehen von der DMZ. \\
+Als erstes musste unter /etc/sysctl.config das Forwarding der Pakete aktiviert werden. Dies erfolgte mit dem ändern des ipv4 forward Flags.
+\begin{lstlisting}
+net.ipv4.ip_forward=1
+\end{lstlisting}
+Somit ist das weiterleiten der Pakete ermöglicht. Das Masquerading wird dann mittels iptables realisiert. Dafür muss folgender Eintrag hinzugefügt werden.
+\begin{lstlisting}
+iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+\end{lstlisting}
+Durch diesen Eintrag wird eth1 als Output Interface für das Masquerading verwendet. Dieser Eintrag wird in die spezielle NAT Tabelle eingetragen.

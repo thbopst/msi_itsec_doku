@@ -11,7 +11,7 @@ Aufgabe der Gruppe war es, zwei Firewalls zu konfigurieren. In Abb. \ref{fig:net
 Zusätzlich zur Firewallkonfiguration war es eine weitere Aufgabe auf fw2 einen OpenVPN-Server im bridged mode für eine Client2LAN-VPN Verbindung zu konfigurieren. Diese sollte es einem simulierten Road-Warrior (in Abb. \ref{fig:netzplan} lap01.internet.f223) ermöglichen auf das Firmen-LAN und auch auf Web- und Mailserver zuzugreifen.
 
 \chapter{Konfiguration}
-Auf beiden virtuellen Maschinen wurde jeweils Debian 7 ("`Wheezy"') installiert. Anschließend mussten die Netzwerkinterfaces beider Maschinen so angepasst werden, dass Sie den Vorgaben aus \ref{fig:netzplan} entsprachen. Dies wurde durch das Eintragen entsprechender Änderungen in der Datei /etc/network/interfaces erreicht. 
+Auf beiden virtuellen Maschinen wurde jeweils Debian 7 ("`Wheezy"') installiert. Anschließend mussten die Netzwerkinterfaces beider Maschinen so angepasst werden, dass Sie den Vorgaben aus \ref{fig:netzplan} entsprachen. Dies wurde durch das Eintragen entsprechender Änderungen in der Datei /etc/network/interfaces erreicht.
 
 Für die äußere Firewall ergibt sich so folgende Konfiguration (Kommentarzeilen entfernt):
 \begin{lstlisting}
@@ -34,7 +34,7 @@ iface eth1 inet static
 	network 10.1.0.0
 	broadcast 10.1.0.255
 \end{lstlisting}
-eth0 ist in diesem Fall die Schnittstelle in die DMZ. Entsprechend is sie im IP-Adress-Bereich 192.168.40.0/24 angesiedelt und verwendet srv1.firma-a.f223 als DNS-Server und komplettiert DNS-Anfragen mit der Domäne firma-a.f223. eth1 ist die Schnittstelle ins simulierte Internet (Adressbereich 10.1.0.0/24).
+eth0 ist in diesem Fall die Schnittstelle in die DMZ. Entsprechend ist sie im IP-Adress-Bereich 192.168.40.0/24 angesiedelt und verwendet srv1.firma-a.f223 als DNS-Server und komplettiert DNS-Anfragen mit der Domäne firma-a.f223. eth1 ist die Schnittstelle ins simulierte Internet (Adressbereich 10.1.0.0/24).
 
 Für die innere Firewall ist die Netzwerkkonfiguration folgende:
 \begin{lstlisting}
