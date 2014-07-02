@@ -8,7 +8,7 @@
 -A INPUT -i lo -j ACCEPT
 -A INPUT -p icmp -m icmp --icmp-type 8 -m state --state NEW -j ACCEPT
 -A FORWARD -i eth0 -s 192.168.40.0/24 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
--A FORWARD -d 192.168.40.0/24 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -d 192.168.40.0/24 -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A FORWARD -d 192.168.40.1/32 -p tcp -m tcp --dport 80 -m state --state NEW -j ACCEPT
 -A FORWARD -d 192.168.40.1/32 -p tcp -m tcp --dport 443 -m state --state NEW -j ACCEPT
 -A FORWARD -d 192.168.40.1/32 -p tcp -m tcp --dport 25 -m state --state NEW -j ACCEPT
@@ -45,6 +45,7 @@ COMMIT
 -A PREROUTING -i eth1 -p tcp -m tcp --dport 53 -j DNAT --to-destination 192.168.40.1:53
 -A PREROUTING -i eth1 -p udp -m udp --dport 53 -j DNAT --to-destination 192.168.40.1:53
 -A PREROUTING -i eth1 -p udp -m udp --dport 1194 -j DNAT --to-destination 192.168.40.240:1194
+-A PREROUTING -i eth1 -p udp -m udp --dport 1195 -j DNAT --to-destination 192.168.40.240:1194
 -A POSTROUTING -o eth1 -j MASQUERADE
 COMMIT
 # Completed on Sat Jun  7 13:56:27 2014
