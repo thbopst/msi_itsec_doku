@@ -6,7 +6,7 @@ Die Firewall wird in dem Praktikum mit IPTables von Linux realisiert. Dies ermö
 	\caption{Firewall Übersicht \cite{linux-ip}}
 	\label{fig:firewall_uebersicht}
 \end{figure}
-In der Abbildung \ref{fig:firewall_uebersicht} ist zu sehen das es verschiedene Tabellen gibt. Je nachdem ob des Paket weitergeleitet wird oder einen lokalen Prozess als Ziel hat, werden die zuständigen Tabellen geprüft. Die Tabellen mit den Regeln werden auch Ketten (Chains) genannt. Folgend eine kurze Auflistung der vorhandenen Ketten und wann welche geprüft werden.
+In der Abbildung \ref{fig:firewall_uebersicht} ist zu sehen das es verschiedene Tabellen gibt. Je nachdem ob das Paket weitergeleitet wird oder einen lokalen Prozess als Ziel hat, werden die zuständigen Tabellen geprüft. Die Tabellen mit den Regeln werden auch Ketten (Chains) genannt. Folgend eine kurze Auflistung der vorhandenen Ketten und wann welche geprüft werden.
 \begin{itemize}
 	\item PREROUTING \\
 	Hier landen Pakete bevor entschieden worden ist, ob das Paket weitergeleitet wird oder einen lokalen Prozess als Ziel hat. Somit können hier Port Weiterleitungen eingetragen werden.
@@ -15,14 +15,14 @@ In der Abbildung \ref{fig:firewall_uebersicht} ist zu sehen das es verschiedene 
 	\item FORWARD \\
 	Hierbei handelt es sich um ein Paket, welches weitergeleitet wird.
 	\item INPUT \\
-	Das Paket hat einen lokalen Prozess als Ziel, welcher auf dem Rechner wo die Firewall läuft sich befindet.
+	Das Paket hat einen lokalen Prozess als Ziel, welcher sich auf dem Rechner, auf dem die Firewall läuft, befindet.
 	\item OUTPUT \\
-	Hierbei handelt es sich um ein Paket, welche von einem lokalen Prozess abgesendet wird.
+	Hierbei handelt es sich um ein Paket, welches von einem lokalen Prozess abgesendet wird.
 \end{itemize}
-Die Regeln zur Beurteilung eines Paketes beschränken sich auf die Schicht 3 und 4. Somit hat man Zugriff auf die Übertragungsflags, IP-Adressen, Ports und die zugehörigen Netzwerkinterfaces. IPTables ermöglicht verbindungsorientierte Paketfilter, somit kann zum Beispiel überprüft werden ob eine Verbindung related ist, dass heißt es wird eine Unterverbindung aufgebaut, wo schon eine Verbindung zwischen den Rechnern besteht. Diese neue Verbindung hat in der Regel einen anderen Port. Dieser wird von vielen Programmen zufällig bestimmt und somit muss die Firewall Verbindungsaufbau zwischen "New" und "Related" unterscheiden können. Des weiteren ermöglicht IPTables eine NAT mit Masquerade Funktion. Das bedeutet es versteckt die Rechner von einem Netzwerk vor dem anderen Netzwerk.
+Die Regeln zur Beurteilung eines Paketes beschränken sich auf die Schicht 3 und 4. Somit hat man Zugriff auf die Übertragungsflags, IP-Adressen, Ports und die zugehörigen Netzwerkinterfaces. IPTables ermöglicht verbindungsorientierte Paketfilter, somit kann zum Beispiel überprüft werden ob eine Verbindung related ist, dass heißt es wird eine Unterverbindung aufgebaut, wo schon eine Verbindung zwischen den Rechnern besteht. Diese neue Verbindung hat in der Regel einen anderen Port. Dieser wird von vielen Programmen zufällig bestimmt und somit muss die Firewall Verbindungsaufbau zwischen "`New"' und "`Related"' unterscheiden können. Des weiteren ermöglicht IPTables eine NAT mit Masquerade Funktion. Das bedeutet es versteckt die Rechner von einem Netzwerk vor dem anderen Netzwerk.
 
 \section{Anforderungen}
-Indem Praktikumsaufbau gibt es zwei Firewalls. Hierbei handelt es sich um eine Äußere Firewall, welche wie in Abbildung \ref{fig:Netzplan} zu erkennen die Verbindungen zwischen der DMZ und dem Internet regelt. Und die Rechner aus der DMZ werden vor Rechnern aus dem Internet versteckt. Die innere Firewall hat dabei dieselben Aufgaben nur ist sie zwischen der DMZ und dem Firmennetzwerk platziert.
+In dem Praktikumsaufbau gibt es zwei Firewalls. Hierbei handelt es sich um eine Äußere Firewall, welche wie in Abbildung \ref{fig:netzplan} zu erkennen die Verbindungen zwischen der DMZ und dem Internet regelt. Die Rechner aus der DMZ werden vor Rechnern aus dem Internet versteckt. Die innere Firewall hat dabei dieselben Aufgaben nur ist sie zwischen der DMZ und dem Firmennetzwerk platziert.
 
 \subsection{Äußere Firewall (FW1)}
 \begin{itemize}
@@ -37,7 +37,7 @@ Indem Praktikumsaufbau gibt es zwei Firewalls. Hierbei handelt es sich um eine �
 \item Masquerading von dem Firmennetz zur DMZ. Somit dürfen die IP Adressen der Rechner aus dem Firmennetz in der DMZ nicht erkennbar sein, sondern als IP Adresse ist die der Firewall zu sehen.
 \item Es dürfen keine neuen Verbindungen von der DMZ in das interne Firmennetz aufgebaut werden.
 \item Rechner aus dem Firmen internen Netzwerk dürfen neue Verbindungen zur DMZ und dem Internet aufbauen.
-\item Auf der inneren Firewall läuft der VPN Prozess und dieser muss aus dem Internet erreichbar sein.	
+\item Auf der inneren Firewall läuft der VPN Dienst und dieser muss aus dem Internet erreichbar sein.	
 \end{itemize}
 
 \section{Implementierung}
@@ -63,17 +63,17 @@ iptables -P INPUT DROP
 Hierbei muss wenn ein neuer Dienst eingerichtet wird, dieser explizit in der Firewall eingetragen werden, damit dieser auch Problemlos funktioniert.
 
 \subsection{ICMP}
-Das Internet Control Message Protkoll dient dazu um Informationen und Fehlermeldungen über das Netzwerk zu übertragen. Wenn zum Beispiel ein Paket verworfen wird, dann kann dies mittels einer ICMP Nachricht demjenigen der versucht eine Verbindung aufzubauen mitgeteilt werden. Diese Informationen sind zum warten und testen eines Systems sehr praktisch. Jedoch auch für einen Angreifer können diese Informationen sinnvoll sein. Auf diesen Rechnern wurden diese Pakete erlaubt. Damit mittels "Ping" getestet werden kann, welche Rechner erreichbar sind. Somit wurden folgende Regeln für die Input Kette erstellt.
+Das Internet Control Message Protkoll dient dazu, Informationen und Fehlermeldungen über das Netzwerk zu übertragen. Wenn zum Beispiel ein Paket verworfen wird, dann kann dies mittels einer ICMP Nachricht demjenigen der versucht eine Verbindung aufzubauen mitgeteilt werden. Diese Informationen sind zur Wartung und zum Testen eines Systems sehr praktisch. Sie können aber auch für einen Angreifer interessant sein. Auf diesen Rechnern wurden diese Pakete erlaubt, damit mittels "Ping" getestet werden kann, welche Rechner erreichbar sind. Somit wurden folgende Regeln für die Input Kette erstellt.
 \lstinputlisting[
     firstline=9,
     lastline=9,
     label = fw:fw1_iptables_icmp,
     caption={FW1 iptables.rules - Ausschnitt ICMP Paketfilter}
 ]{code/fw1_iptables.rules}
-Dasselbe wurde auf der zweiten Firewall auch eingerichtet. Somit sind die Firewall Rechner weiterhin pingbar. Man kann diesen Filter auch entfernen, wenn man sich sicher ist, dass alles in Ordnung läuft. Dadurch gewinnt man nochmals einen kleinen Grad an Sicherheit. Jedoch bei auftretenden Fehlern erschwert es einem die Fehlersuche. Für dieses Praktikum war die erleichterte Fehlersuche der Hauptgrund für das erlauben dieser Pakete.
+Dasselbe wurde auf der zweiten Firewall auch eingerichtet. Somit sind die Firewall Rechner weiterhin pingbar. Man kann diesen Filter auch entfernen, wenn man sich sicher ist, dass alles in Ordnung läuft. Dadurch gewinnt man nochmals einen kleinen Grad an Sicherheit. Jedoch erschwert es bei auftretenden Fehlern die Fehlersuche. Für dieses Praktikum war die erleichterte Fehlersuche der Hauptgrund für das Erlauben dieser Pakete.
 
 \subsection{NAT / Masquerading}
-Das Einrichten von Masquerading erfolgte auf beiden Firewall Rechnern gleich, da diese Funktionalität auf beiden die selbe ist. Die Netzwerkschnittstelle "eth0" ist mit dem Netzwerk verbunden, welches versteckt werden soll. Wobei "eth1" mit dem Netzwerk verbunden ist, welchem nicht zu vertrauen ist. Das ist einmal die DMZ von dem firmeninternen Netzwerk und das Internet gesehen von der DMZ. \\
+Das Einrichten von Masquerading erfolgte auf beiden Firewall Rechnern gleich, da diese Funktionalität auf beiden die selbe ist. Die Netzwerkschnittstelle "`eth0"' ist mit dem Netzwerk verbunden, welches versteckt werden soll. Wobei "`eth1"' mit dem Netzwerk verbunden ist, welchem nicht zu vertrauen ist. Das ist einmal die DMZ von dem firmeninternen Netzwerk und das Internet gesehen von der DMZ. \\
 Als erstes musste unter /etc/sysctl.config das Forwarding der Pakete aktiviert werden. Dies erfolgte mit dem ändern des ipv4 forward Flags.
 \begin{lstlisting}[caption={/etc/sysctl.config}]
 net.ipv4.ip_forward=1
@@ -82,10 +82,10 @@ Somit ist das weiterleiten der Pakete ermöglicht. Das Masquerading wird dann mi
 \begin{lstlisting}
 iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
 \end{lstlisting}
-Durch diesen Eintrag wird "eth1" als Output Netzwerkinterface für das Masquerading verwendet. Dieser Eintrag wird in die dafür zuständige NAT Tabelle eingetragen. Dies ist mittels -t nat zu erkennen.
+Durch diesen Eintrag wird "`eth1"' als Output Netzwerkinterface für das Masquerading verwendet. Dieser Eintrag wird in die dafür zuständige NAT Tabelle eingetragen. Dies ist mittels -t nat zu erkennen.
 
 \subsection{Implementierung FW1 (DMZ - Internet)}
-Diese Firewall regelt die Verbindung zwischen der DMZ und dem Internet. Somit ist es wichtig das Pakete welche an bestimmten Ports ankommen auch an den zutreffenden Server weitergeleitet werden. In diesem Praktikum ist das der Server mit dem DNS-Namen "srv1.firma-a.f223" mit der IP-Adresse "192.168.40.1". Das bedeutet es müssen zuerst die Pakete welche an die Firewall ankommen in der Prerouting Kette weitergeleitet werden. In der Auflistung \ref{fw:fw1_iptables_prerouting} sind Einträge für die Nat Tabelle in der Kette Prerouting zu erkennen. Es wird anhand des ankommenden Netzwerkinterfaces und Port entschieden ob das Paket weitergeleitet wird an den Webserver. Hier wurden alle relevanten Ports eingetragen.
+Diese Firewall regelt die Verbindung zwischen der DMZ und dem Internet. Somit ist es wichtig das Pakete welche an bestimmten Ports ankommen auch an den zutreffenden Server weitergeleitet werden. In diesem Praktikum ist das der Server mit dem DNS-Namen "`srv1.firma-a.f223"' mit der IP-Adresse "`192.168.40.1"'. Das bedeutet es müssen zuerst die Pakete welche an die Firewall ankommen in der Prerouting Kette weitergeleitet werden. In der Auflistung \ref{fw:fw1_iptables_prerouting} sind Einträge für die Nat Tabelle in der Kette Prerouting zu erkennen. Es wird anhand des ankommenden Netzwerkinterfaces und Port entschieden ob das Paket weitergeleitet wird an den Webserver. Hier wurden alle relevanten Ports eingetragen.
 \lstinputlisting[
     firstline=35,
     lastline=48,
@@ -99,16 +99,16 @@ Ebenso werden die udp Pakete welche für das VPN zuständig sind, an die innere 
     label = fw:fw1_iptables_forward,
     caption={FW1 iptables.rules - Paketfilter Forward}
 ]{code/fw1_iptables.rules}
-Somit werden Pakete alle Pakete akzeptiert, welche den state "NEW" haben und aus dem Internet auf den Webserver weitergeleitet werden. Das sind die Zeilen 3 bis 13 in der Auflistung \ref{fw:fw1_iptables_forward}. Die Zeilen 14 und 15 sind wiederum für die Pakete vom VPN Dienstes zuständig. Die erste Zeile erlaubt Pakete von der DMZ zum Internet. Die zweite Zeile erlaubt bei schon aufgebauten Verbindungen, dass diese Pakete nicht verworfen werden. Somit sind alle Pakete welche weitergeleitet werden für die äußere Firewall eingerichtet. 
+Somit werden Pakete alle Pakete akzeptiert, welche den state "`NEW"' haben und aus dem Internet auf den Webserver weitergeleitet werden. Das sind die Zeilen 3 bis 13 in der Auflistung \ref{fw:fw1_iptables_forward}. Die Zeilen 14 und 15 sind wiederum für die Pakete des VPN Dienstes zuständig. Die erste Zeile erlaubt Pakete von der DMZ zum Internet. Die zweite Zeile erlaubt bei schon aufgebauten Verbindungen, dass diese Pakete nicht verworfen werden. Somit sind alle Pakete welche weitergeleitet werden für die äußere Firewall eingerichtet. 
 
-Es fehlen noch die lokalen Prozesse von der FW1. Diese Pakete erreichen die Kette Input und Output. In der Auflistung \ref{fw:fw1_iptables_input} sind die Paketfilterregeln für die Input Kette zu sehen.
+Es fehlen noch die lokalen Prozesse der FW1. Diese Pakete erreichen die Kette Input und Output. In der Auflistung \ref{fw:fw1_iptables_input} sind die Paketfilterregeln für die Input Kette zu sehen.
 \lstinputlisting[
     firstline=6,
     lastline=9,
     label = fw:fw1_iptables_input,
     caption={FW1 iptables.rules - Paketfilter input}
 ]{code/fw1_iptables.rules}
-Darunter befindet sich in der ersten Zeile, dass Pakete welche einer schon bestehenden Verbindung angehören akzeptiert werden. Mit der zweiten Zeile werden neue Pakete aus der DMZ auf einen lokalen Prozess erlaubt. Die zwei letzten Zeilen erlauben das loopback und ICMP Pakete. Pakete für loopback werden erzeugt, wenn man zum Beispiel "ping localhost" ausführt. Diese Pakete haben als Netzwerkinterface "lo". 
+Darunter befindet sich in der ersten Zeile, dass Pakete welche einer schon bestehenden Verbindung angehören akzeptiert werden. Mit der zweiten Zeile werden neue Pakete aus der DMZ auf einen lokalen Prozess erlaubt. Die zwei letzten Zeilen erlauben das loopback und ICMP Pakete. Pakete für loopback werden erzeugt, wenn man zum Beispiel "`ping localhost"' ausführt. Diese Pakete haben als Netzwerkinterface "`lo"'. 
 
 Zum Schluss noch die Regeln für die OUTPUT Kette.
 \lstinputlisting[
@@ -120,15 +120,15 @@ Zum Schluss noch die Regeln für die OUTPUT Kette.
 In der Auflistung \ref{fw:fw1_iptables_output} ist zu erkennen, dass alle Verbindungen welche von einem lokalen Prozess ausgehen erlaubt werden.
 
 \subsection{Implementierung FW2 (Firmennetz - DMZ)}
-Bei dieser Firewall handelt es sich um die Verbindung zwischen dem firmeninternen Netzwerk und der DMZ. Da keinerlei Dienste aus dem firmeninternen Netzwerk von der DMZ erreichbar sein dürfen, gibt es keine Prerouting Regeln, welche dieses erlauben würden. Somit beschränkt sich die NAT Regeln nur auf das Masquerading. 
-Auf dem Rechner wo die Firewall läuft, befindet sich jedoch der VPN Dienst. Somit muss dieser erreichbar sein. Hierfür müssen Regeln in der Input Kette von dem Paketfilter hinzugefügt werden. In der folgenden Auflistung sind die Regeln für die Input Kette:
+Bei dieser Firewall handelt es sich um die Verbindung zwischen dem firmeninternen Netzwerk und der DMZ. Da keinerlei Dienste aus dem firmeninternen Netzwerk von der DMZ erreichbar sein dürfen, gibt es keine Prerouting Regeln, welche dieses erlauben würden. Somit beschränken sich die NAT Regeln nur auf das Masquerading. 
+Auf dem Rechner, auf dem die Firewall läuft, befindet sich jedoch der VPN Dienst. Somit muss dieser erreichbar sein. Hierfür müssen Regeln in der Input Kette des Paketfilters hinzugefügt werden. In der folgenden Auflistung sind die Regeln für die Input Kette:
 \lstinputlisting[
     firstline=15,
     lastline=19,
     label = fw:fw2_iptables_input,
     caption={FW2 iptables.rules - Paketfilter input}
 ]{code/fw2_iptables.rules}
-Equivalent zur Firewall 1 ist loopback und ICMP erlaubt. Ebenso werden Pakete welche zu einer bestehenden Verbindungen angehören erlaubt. Neu hinzu kommt zu dieser Firewall, dass neue Pakete mit dem port 1195 und 1194, wenn sie am Netzwerkinterface eth1 ankommen erlaubt werden. Dabei handelt es sich um die Ports für das VPN Client-to-Lan und Client-to-Client. Somit kann der lokale VPN Dienst erreicht werden.
+Äquivalent zur Firewall 1 ist loopback und ICMP erlaubt. Ebenso werden Pakete welche zu einer bestehenden Verbindung gehören, erlaubt. Neu hinzu kommt zu dieser Firewall, dass neue Pakete mit dem port 1195 und 1194, wenn sie am Netzwerkinterface eth1 ankommen, erlaubt werden. Dabei handelt es sich um die Ports für das VPN Client-to-Lan und Client-to-Client. Somit kann der lokale VPN Dienst erreicht werden.
 Damit die Rechner aus dem Firmennetz auf die DMZ zugreifen können, müssen noch zwei Forward Regeln hinzugefügt werden. In \ref{fw:fw2_iptables_forward} sind diese Regeln aufgelistet.
 \lstinputlisting[
     firstline=20,
@@ -136,6 +136,6 @@ Damit die Rechner aus dem Firmennetz auf die DMZ zugreifen können, müssen noch
     label = fw:fw2_iptables_forward,
     caption={FW2 iptables.rules - Paketfilter Forward}
 ]{code/fw2_iptables.rules}
-In der zweiten Zeile ist wieder zu erkennen, Pakete welcher einer bestehende Verbindungen angehören aus der DMZ in Richtung Firmennetzwerk erlaubt werden. In der ersten Zeil ist die Regel für Verbindungen von dem Firmennetz zur DMZ zu erkennen. Hierbei ist zu erwähnen, dass IP-Adresse und die Verbindungen nicht von dem Netzwerkinterface "eth1" stammen dürfen. Die extra Einschränkung vom Interface soll IP-Spoofing unterbinden.
+In der zweiten Zeile ist wieder zu erkennen, Pakete welcher einer bestehende Verbindungen angehören aus der DMZ in Richtung Firmennetzwerk erlaubt werden. In der ersten Zeile ist die Regel für Verbindungen aus dem Firmennetz zur DMZ zu erkennen. Hierbei ist zu erwähnen, dass IP-Adresse und die Verbindungen nicht von dem Netzwerkinterface "eth1" stammen dürfen. Diese zusätzliche Einschränkung des Interface soll IP-Spoofing unterbinden.
 
-Die Output Kette haben wir auf dieser Firewall mit der default policy ACCEPT eingestellt. Weil jede Verbindung von einem lokalen Prozess der Firewall ausgehend ist erlaubt. Deswegen ist es nicht Notwendig die Default-Policy auf DROP zu stellen und dann mittels Regel alles zu erlauben.
+Die Output Kette haben wir auf dieser Firewall mit der default policy ACCEPT eingestellt. Weil jede Verbindung, die von einem lokalen Prozess der Firewall ausgeht, erlaubt ist. Deswegen ist es nicht notwendig die Default-Policy auf DROP zu stellen und dann mittels Regeln alles zu erlauben.
