@@ -1,13 +1,35 @@
 \chapter{Verifikation}
 \section{Netzwerkkonfiguration}
-Die korrekte Konfiguration des Netzwerks konnte mittels des ifconfig-Befehls geprüft werden: %Hier Referenzen zu den Abb. der ifconfigs
+Die korrekte Konfiguration des Netzwerks konnte mittels des ifconfig-Befehls geprüft werden. 
 
-%Screenshots(?) der ifconfigs
+\lstinputlisting[
+    firstline=1,
+    lastline=29,
+    label = ver:ifconfig1,
+    caption={ifconfig-Ausgabe fw1.firma-a.f223}
+]{code/fw1_ifconfig.txt}
+
+Listing \ref{ver:ifconfig1} zeigt die Ausgabe des ifconfig Befehls auf der äußeren Firewall. Wie unschwer zu erkennen ist, sind die in Abb. \ref{fig:netzplan} vorgegebenen IP-Adressen (192.168.40.250 / 10.1.0.131), sowie die entsprechenden Netzwerke korrekt gesetzt (z. 2 und z. 12). Die ifconfig-Ausgabe der inneren Firewall wurde bereits in Listing \ref{vpn:ifconfig} angegeben. Auch hier kann man die korrekt gesetzten IP-Adressen erkennen, allerdings ist die ursprünglich für eth0 gesetzte IP-Adresse durch das bilden der Netzwerkbridge auf br0 übergegangen. IP-Adresse (192.168.30.240 / 192.168.40.240) und Netzwerk finden sich in z. 2 und z.20.
+
 
 \section{Network-Address-Translation}
-Zur Verifikation der NAT-Funktionalität war es zunächst nötig zu prüfen, ob das Forwarding zwischen den Netzwerkinterfaces funktionierte. Dazu wurde von einem Client aus dem Firmen-LAN zunächst der Webserver in der DMZ (Forwarding von fw2) und anschließend ein Server im "`Internet"' gepingt (Forwarding von fw1). %Referenz auf Screenshots
+Zur Verifikation der NAT-Funktionalität war es zunächst nötig zu prüfen, ob das Forwarding zwischen den Netzwerkinterfaces funktionierte. Dazu wurde von einem Client aus dem Firmen-LAN zunächst die IP-Adresse 10.1.0.131 (Äußere Schnittstelle von fw1) gepingt, siehe Abb. \ref{fig:pc01_ping_fw1}. Anschließend wurde ein Traceroute zum Server net1.internet.f223 vorgenommen, der auch beweist, dass beide Firewalls passiert werden. Das Ergebnis ist in Abb. \ref{fig:pc01_traceroute_net1} zu sehen.
 
-%screenshots
+\begin{figure}[h!]
+	\centering
+		\includegraphics[width=0.7\textwidth]{figures/pc01_ping_fw1.png}
+	\caption{Ping auf die äußere Schnittstelle von fw1 aus dem LAN heraus}
+	\label{fig:pc01_ping_fw1}
+\end{figure}
+
+
+\begin{figure}[h!]
+	\centering
+		\includegraphics[width=0.7\textwidth]{figures/pc01_traceroute_net1.png}
+	\caption{Traceroute aus dem LAN zu net1.internet.f223}
+	\label{fig:pc01_traceroute_net1}
+\end{figure}
+
 
 Das IP-Masquerading konnte jeweils mit zwei Logins auf dem Webserver, sowie dem Server im Internet sichergestellt werden: Auf dem Client wurden zwei SSH-Logins auf den entsprechenden Servern vorgenommen. Beim zweiten Login wurde dann die IP-Adresse des jeweils vorhergehenden Logins angezeigt, was jeweils den IP-Adressen der Firewalls entsprach.
 
