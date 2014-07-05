@@ -21,6 +21,24 @@ In der Abbildung \ref{fig:firewall_uebersicht} ist zu sehen das es verschiedene 
 \end{itemize}
 Die Regeln zur Beurteilung eines Paketes beschränken sich auf die Schicht 3 und 4. Somit hat man Zugriff auf die Übertragungsflags, IP-Adressen, Ports und die zugehörigen Netzwerkinterfaces. IPTables ermöglicht verbindungsorientierte Paketfilter, somit kann zum Beispiel überprüft werden ob eine Verbindung related ist, dass heißt es wird eine Unterverbindung aufgebaut, wo schon eine Verbindung zwischen den Rechnern besteht. Diese neue Verbindung hat in der Regel einen anderen Port. Dieser wird von vielen Programmen zufällig bestimmt und somit muss die Firewall Verbindungsaufbau zwischen "`New"' und "`Related"' unterscheiden können. Des weiteren ermöglicht IPTables eine NAT mit Masquerade Funktion. Das bedeutet es versteckt die Rechner von einem Netzwerk vor dem anderen Netzwerk.
 
+\section{Stateful - Stateless}
+Es gibt grundlegend zwei verschiedene Arten von Firewalls, darunter fallen stateful- und stateless Firewalls. Eine stateless Firewall kann nur Pakete filtern anhand der Paketinformationen und kann somit keine weiteren Daten zur Beurteilung eines Paketes heranziehen. Eine stateful Firewall hingegen kann Daten zu bestehenden Verbindungen speichern. Dies ermöglicht z.B. das neue Verbindungen aus einer schon bestehenden Verbindung aufgebaut werden können, wobei der Port ein anderer sein kann. Somit kann eine neue Verbindung von einer neuen Unterverbindung unterschieden werden. Ebenso kann eine stateful Firewall effektiver DoS Angriffe abwehren, weil sie zum Beispiel speichern kann wie häufig von einem Rechner eine neue Verbindung aufgebaut wurde und kann somit nach einer bestimmten Anzahl von Verbindungen alle Pakete fallen lassen. Allgemein sind stateless Firewalls schneller und einfacher zu handhaben, bieten hingegen nicht die Möglichkeiten einer stateful Firewall. IPTables ist eine stateful Firewall und bietet somit mehrere States anhand dessen die Filterregeln aufgestellt werden können.
+
+\subsection{IPTables - States}
+Wichtiger Bestandteil einer Filterregel sind die States. Folgend ist eine kurze Auflistung der verschiedenen States und wann diese einem Paket zugeordnet werden.
+\begin{itemize} 
+	\item NEW \\
+	Hierbei handelt es ich um ein Paket, welches eine neue Verbindung aufbaut. Somit ist es immer das erste Paket einer Verbindung.
+	\item ESTABLISHED \\
+	Hierbei handelt es sich um Pakete welche einer bestehenden Verbindung angehören.
+	\item RELATED \\
+	Hierbei handelt es sich um ein Paket welches eine neue Verbindung aufbaut. Jedoch besteht schon eine weitere Verbindung zwischen den Rechnern.
+	\item INVALID \\
+	Hierbei handelt es sich um Pakete wo der State nicht erkannt werden kann.
+	\item UNTRACKED \\
+	Hierbei handelt es sich um Verbindungen welche nicht Stateful gespeichert werden. Dies kann mittels einer "`raw table"' zu bestimmten Verbindungen zugewiesen werden. Dann sind alle Pakete dieser Verbindung mit dem State UNTRACKED.
+\end{itemize} 
+
 \section{Anforderungen}
 In dem Praktikumsaufbau gibt es zwei Firewalls. Hierbei handelt es sich um eine Äußere Firewall, welche wie in Abbildung \ref{fig:netzplan} zu erkennen die Verbindungen zwischen der DMZ und dem Internet regelt. Die Rechner aus der DMZ werden vor Rechnern aus dem Internet versteckt. Die innere Firewall hat dabei dieselben Aufgaben nur ist sie zwischen der DMZ und dem Firmennetzwerk platziert.
 
