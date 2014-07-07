@@ -1,4 +1,4 @@
-\chapter{Firewall}
+\chapter{Firewall}\label{fw}
 Die Firewall wird in dem Praktikum mit IPTables von Linux realisiert. Dies ermöglicht das Aufstellen von Regeln, welche in Tabellen abgelegt werden, um Verbindungen zwischen zwei Netzen zu kontrollieren. Wenn ein Paket die Firewall erreicht, dann checkt die Firewall sequentiell die einzelnen Regeln. Wenn eine der Regeln zutrifft, dann wird das Paket entweder mittels ACCEPT akzeptiert oder mittels DROP fallengelassen. Bei ACCEPT wird das Paket weiter gereicht und bei DROP wird das Paket einfach fallen gelassen und der Zielrechner erhält nicht das Paket. Wenn keine Regel zutrifft, dann wird die Default Policy angewandt. Diese kann wiederum auf DROP und ACCEPT gesetzt sein. 
 \begin{figure}
 	\centering
@@ -6,12 +6,12 @@ Die Firewall wird in dem Praktikum mit IPTables von Linux realisiert. Dies ermö
 	\caption{Firewall Übersicht \cite{linux-ip}}
 	\label{fig:firewall_uebersicht}
 \end{figure}
-In der Abbildung \ref{fig:firewall_uebersicht} ist zu sehen das es verschiedene Tabellen gibt. Je nachdem ob das Paket weitergeleitet wird oder einen lokalen Prozess als Ziel hat, werden die zuständigen Tabellen geprüft. Die Tabellen mit den Regeln werden auch Ketten (Chains) genannt. Folgend eine kurze Auflistung der vorhandenen Ketten und wann welche geprüft werden.
+In Abbildung \ref{fig:firewall_uebersicht} ist zu sehen, dass es verschiedene Tabellen gibt. Je nachdem ob das Paket weitergeleitet wird oder einen lokalen Prozess als Ziel hat, werden die zuständigen Tabellen geprüft. Die Tabellen mit den Regeln werden auch Ketten (Chains) genannt. Folgend eine kurze Auflistung der vorhandenen Ketten und wann welche geprüft werden.
 \begin{itemize}
 	\item PREROUTING \\
 	Hier landen Pakete bevor entschieden worden ist, ob das Paket weitergeleitet wird oder einen lokalen Prozess als Ziel hat. Somit können hier Port Weiterleitungen eingetragen werden.
 	\item POSTROUTING \\
-	Ganz zum Schluss, wenn schon alle vorherigen Entscheidungen getroffen worden sind. Dann durchlaufen alle Pakete noch Postrouting Kette.
+	Ganz zum Schluss, wenn schon alle vorherigen Entscheidungen getroffen worden sind. Dann durchlaufen alle Pakete noch die Postrouting Kette.
 	\item FORWARD \\
 	Hierbei handelt es sich um ein Paket, welches weitergeleitet wird.
 	\item INPUT \\
@@ -19,10 +19,10 @@ In der Abbildung \ref{fig:firewall_uebersicht} ist zu sehen das es verschiedene 
 	\item OUTPUT \\
 	Hierbei handelt es sich um ein Paket, welches von einem lokalen Prozess abgesendet wird.
 \end{itemize}
-Die Regeln zur Beurteilung eines Paketes beschränken sich auf die Schicht 3 und 4. Somit hat man Zugriff auf die Übertragungsflags, IP-Adressen, Ports und die zugehörigen Netzwerkinterfaces. IPTables ermöglicht verbindungsorientierte Paketfilter, somit kann zum Beispiel überprüft werden ob eine Verbindung related ist, dass heißt es wird eine Unterverbindung aufgebaut, wo schon eine Verbindung zwischen den Rechnern besteht. Diese neue Verbindung hat in der Regel einen anderen Port. Dieser wird von vielen Programmen zufällig bestimmt und somit muss die Firewall Verbindungsaufbau zwischen "`New"' und "`Related"' unterscheiden können. Des weiteren ermöglicht IPTables eine NAT mit Masquerade Funktion. Das bedeutet es versteckt die Rechner von einem Netzwerk vor dem anderen Netzwerk.
+Die Regeln zur Beurteilung eines Paketes beschränken sich auf die OSI-Schichten 3 und 4. Somit hat man Zugriff auf die Übertragungsflags, IP-Adressen, Ports und die zugehörigen Netzwerkinterfaces. IPTables ermöglicht verbindungsorientierte Paketfilter, somit kann zum Beispiel überprüft werden ob eine Verbindung related ist, dass heißt es wird eine Unterverbindung aufgebaut, wo schon eine Verbindung zwischen den Rechnern besteht. Diese neue Verbindung hat in der Regel einen anderen Port. Dieser wird von vielen Programmen zufällig bestimmt und somit muss die Firewall Verbindungsaufbau zwischen "`New"' und "`Related"' unterscheiden können. Des weiteren ermöglicht IPTables eine NAT mit Masquerade Funktion. Das bedeutet es versteckt die Rechner von einem Netzwerk vor dem anderen Netzwerk.
 
 \section{Stateful - Stateless}
-Es gibt grundlegend zwei verschiedene Arten von Firewalls, darunter fallen stateful- und stateless Firewalls. Eine stateless Firewall kann nur Pakete filtern anhand der Paketinformationen und kann somit keine weiteren Daten zur Beurteilung eines Paketes heranziehen. Eine stateful Firewall hingegen kann Daten zu bestehenden Verbindungen speichern. Dies ermöglicht z.B. das neue Verbindungen aus einer schon bestehenden Verbindung aufgebaut werden können, wobei der Port ein anderer sein kann. Somit kann eine neue Verbindung von einer neuen Unterverbindung unterschieden werden. Ebenso kann eine stateful Firewall effektiver DoS Angriffe abwehren, weil sie zum Beispiel speichern kann wie häufig von einem Rechner eine neue Verbindung aufgebaut wurde und kann somit nach einer bestimmten Anzahl von Verbindungen alle Pakete fallen lassen. Allgemein sind stateless Firewalls schneller und einfacher zu handhaben, bieten hingegen nicht die Möglichkeiten einer stateful Firewall. IPTables ist eine stateful Firewall und bietet somit mehrere States anhand dessen die Filterregeln aufgestellt werden können.
+Es gibt grundlegend zwei verschiedene Arten von Firewalls, darunter fallen stateful- und stateless Firewalls. Eine stateless Firewall kann nur Pakete filtern anhand der Paketinformationen und kann somit keine weiteren Daten zur Beurteilung eines Paketes heranziehen. Eine stateful Firewall hingegen kann Daten zu bestehenden Verbindungen speichern. Dies ermöglicht z.B., dass neue Verbindungen aus einer schon bestehenden Verbindung aufgebaut werden können, wobei der Port ein anderer sein kann. Somit kann eine neue Verbindung von einer neuen Unterverbindung unterschieden werden. Ebenso kann eine stateful Firewall effektiver DoS Angriffe abwehren, weil sie zum Beispiel speichern kann wie häufig von einem Rechner eine neue Verbindung aufgebaut wurde und kann somit nach einer bestimmten Anzahl von Verbindungen alle Pakete fallen lassen. Allgemein sind stateless Firewalls schneller und einfacher zu handhaben, bieten hingegen nicht die Möglichkeiten einer stateful Firewall. IPTables ist eine stateful Firewall und bietet somit mehrere States anhand dessen die Filterregeln aufgestellt werden können.
 
 \subsection{IPTables - States}
 Wichtiger Bestandteil einer Filterregel sind die States. Folgend ist eine kurze Auflistung der verschiedenen States und wann diese einem Paket zugeordnet werden.
@@ -34,7 +34,7 @@ Wichtiger Bestandteil einer Filterregel sind die States. Folgend ist eine kurze 
 	\item RELATED \\
 	Hierbei handelt es sich um ein Paket welches eine neue Verbindung aufbaut. Jedoch besteht schon eine weitere Verbindung zwischen den Rechnern.
 	\item INVALID \\
-	Hierbei handelt es sich um Pakete wo der State nicht erkannt werden kann.
+	Hierbei handelt es sich um Pakete, deren State nicht erkannt werden kann.
 	\item UNTRACKED \\
 	Hierbei handelt es sich um Verbindungen welche nicht Stateful gespeichert werden. Dies kann mittels einer "`raw table"' zu bestimmten Verbindungen zugewiesen werden. Dann sind alle Pakete dieser Verbindung mit dem State UNTRACKED.
 \end{itemize} 
@@ -103,7 +103,7 @@ iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
 Durch diesen Eintrag wird "`eth1"' als Output Netzwerkinterface für das Masquerading verwendet. Dieser Eintrag wird in die dafür zuständige NAT Tabelle eingetragen. Dies ist mittels -t nat zu erkennen.
 
 \subsection{Implementierung FW1 (DMZ - Internet)}
-Diese Firewall regelt die Verbindung zwischen der DMZ und dem Internet. Somit ist es wichtig das Pakete welche an bestimmten Ports ankommen auch an den zutreffenden Server weitergeleitet werden. In diesem Praktikum ist das der Server mit dem DNS-Namen "`srv1.firma-a.f223"' mit der IP-Adresse "`192.168.40.1"'. Das bedeutet es müssen zuerst die Pakete welche an die Firewall ankommen in der Prerouting Kette weitergeleitet werden. In der Auflistung \ref{fw:fw1_iptables_prerouting} sind Einträge für die Nat Tabelle in der Kette Prerouting zu erkennen. Es wird anhand des ankommenden Netzwerkinterfaces und Port entschieden ob das Paket weitergeleitet wird an den Webserver. Hier wurden alle relevanten Ports eingetragen.
+Diese Firewall regelt die Verbindung zwischen der DMZ und dem Internet. Somit ist es wichtig, dass Pakete welche an bestimmten Ports ankommen, auch an den zutreffenden Server weitergeleitet werden. In diesem Praktikum ist das der Server mit dem DNS-Namen "`srv1.firma-a.f223"' mit der IP-Adresse "`192.168.40.1"'. Das bedeutet es müssen zuerst die Pakete welche an die Firewall ankommen in der Prerouting Kette weitergeleitet werden. In der Auflistung \ref{fw:fw1_iptables_prerouting} sind Einträge für die Nat Tabelle in der Kette Prerouting zu erkennen. Es wird anhand des ankommenden Netzwerkinterfaces und Port entschieden ob das Paket weitergeleitet wird an den Webserver. Hier wurden alle relevanten Ports eingetragen.
 \lstinputlisting[
     firstline=35,
     lastline=48,
@@ -117,7 +117,7 @@ Ebenso werden die udp Pakete welche für das VPN zuständig sind, an die innere 
     label = fw:fw1_iptables_forward,
     caption={FW1 iptables.rules - Paketfilter Forward}
 ]{code/fw1_iptables.rules}
-Somit werden Pakete alle Pakete akzeptiert, welche den state "`NEW"' haben und aus dem Internet auf den Webserver weitergeleitet werden. Das sind die Zeilen 3 bis 13 in der Auflistung \ref{fw:fw1_iptables_forward}. Die Zeilen 14 und 15 sind wiederum für die Pakete des VPN Dienstes zuständig. Die erste Zeile erlaubt Pakete von der DMZ zum Internet. Die zweite Zeile erlaubt bei schon aufgebauten Verbindungen, dass diese Pakete nicht verworfen werden. Somit sind alle Pakete welche weitergeleitet werden für die äußere Firewall eingerichtet. 
+Somit werden alle Pakete akzeptiert, welche den state "`NEW"' haben und aus dem Internet auf den Webserver weitergeleitet werden. Das sind die Zeilen 3 bis 13 in der Auflistung \ref{fw:fw1_iptables_forward}. Die Zeilen 14 und 15 sind wiederum für die Pakete des VPN Dienstes zuständig. Die erste Zeile erlaubt Pakete von der DMZ zum Internet. Die zweite Zeile erlaubt bei schon aufgebauten Verbindungen, dass diese Pakete nicht verworfen werden. Somit sind alle Pakete welche weitergeleitet werden für die äußere Firewall eingerichtet. 
 
 Es fehlen noch die lokalen Prozesse der FW1. Diese Pakete erreichen die Kette Input und Output. In der Auflistung \ref{fw:fw1_iptables_input} sind die Paketfilterregeln für die Input Kette zu sehen.
 \lstinputlisting[
@@ -154,6 +154,6 @@ Damit die Rechner aus dem Firmennetz auf die DMZ zugreifen können, müssen noch
     label = fw:fw2_iptables_forward,
     caption={FW2 iptables.rules - Paketfilter Forward}
 ]{code/fw2_iptables.rules}
-In der zweiten Zeile ist wieder zu erkennen, Pakete welcher einer bestehende Verbindungen angehören aus der DMZ in Richtung Firmennetzwerk erlaubt werden. In der ersten Zeile ist die Regel für Verbindungen aus dem Firmennetz zur DMZ zu erkennen. Hierbei ist zu erwähnen, dass IP-Adresse und die Verbindungen nicht von dem Netzwerkinterface "eth1" stammen dürfen. Diese zusätzliche Einschränkung des Interface soll IP-Spoofing unterbinden.
+In der zweiten Zeile ist wieder zu erkennen, dass Pakete welcher einer bestehende Verbindungen angehören, aus der DMZ in Richtung Firmennetzwerk erlaubt werden. In der ersten Zeile ist die Regel für Verbindungen aus dem Firmennetz zur DMZ zu erkennen. Hierbei ist zu erwähnen, dass IP-Adresse und die Verbindungen nicht von dem Netzwerkinterface "`eth1"' stammen dürfen. Diese zusätzliche Einschränkung des Interface soll IP-Spoofing unterbinden.
 
 Die Output Kette haben wir auf dieser Firewall mit der default policy ACCEPT eingestellt. Weil jede Verbindung, die von einem lokalen Prozess der Firewall ausgeht, erlaubt ist. Deswegen ist es nicht notwendig die Default-Policy auf DROP zu stellen und dann mittels Regeln alles zu erlauben.

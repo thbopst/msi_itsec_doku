@@ -1,14 +1,14 @@
 \chapter{Aufgabenstellung}
-\begin{figure}
-	\centering
-		\includegraphics[width=1.00\textwidth]{figures/netzplan.PNG}
-	\caption{Netzplan \cite{Neuschwander2014}}
-	\label{fig:netzplan}
-\end{figure}
-
 Aufgabe der Gruppe war es, zwei Firewalls zu konfigurieren. In Abb. \ref{fig:netzplan} sind diese Firewalls als fw1.firma-a.f223 und fw2.firma-a.f223 gekennzeichnet. fw1 trennt die DMZ der Firma A vom (simulierten) Internet, fw2 trennt die DMZ von Firma A vom LAN der Firma A. Dabei war gefordert, dass durch fw1 Zugriff auf die in der DMZ bereit gestellten Dienste (Webserver und Mailserver) möglich sein muss. Von außen sowie aus der DMZ soll auf das LAN hinter fw2 kein Zugriff möglich sein. Beide Firewalls sollten außerdem eine Network-Address-Translation (NAT) durchführen, bei der jeweils ein so genanntes "`Masquerading"' durchzuführen war, so dass die hinter der Firewall geschützten Rechner nach außen jeweils mit der IP-Adresse der Firewall in Erscheinung treten sollten.
 
 Zusätzlich zur Firewallkonfiguration war es eine weitere Aufgabe auf fw2 einen OpenVPN-Server im bridged mode für eine Client2LAN-VPN Verbindung zu konfigurieren. Diese sollte es einem simulierten Road-Warrior (in Abb. \ref{fig:netzplan} lap01.internet.f223) ermöglichen auf das Firmen-LAN und auch auf Web- und Mailserver zuzugreifen.
+
+\begin{figure}[h!]
+	\centering
+		\includegraphics[width=0.7\textwidth]{figures/netzplan.PNG}
+	\caption{Netzplan \cite{Neuschwander2014}}
+	\label{fig:netzplan}
+\end{figure}
 
 \chapter{Konfiguration}
 Auf beiden virtuellen Maschinen wurde jeweils Debian 7 ("`Wheezy"') installiert. Anschließend mussten die Netzwerkinterfaces beider Maschinen so angepasst werden, dass Sie den Vorgaben aus \ref{fig:netzplan} entsprachen. Dies wurde durch das Eintragen entsprechender Änderungen in der Datei /etc/network/interfaces erreicht.

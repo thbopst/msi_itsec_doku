@@ -30,7 +30,7 @@ Zur Verifikation der NAT-Funktionalität war es zunächst nötig zu prüfen, ob 
 	\label{fig:pc01_traceroute_net1}
 \end{figure}
 
-Zum Nachweis, dass das IP-MAsquerading funtioniert, wurde von pc01.firma-a.f223 ein Ping-Befehl auf 10.1.0.1 (net1.internet.f223) ausgeführt. Der Netzwerkverkehr dieses Ping-Befehls wurde jeweils in der DMZ (Abb. \ref{fig:ws_dmz}) und im Internet (Abb. \ref{fig:ws_internet}) mit Wireshark mitgeschnitten. Dabei ist sichtbar, dass die Quell-IP-Adresse beim Ping-Request jeweils mit der IP der zuletzt passierten Firewall (fw2 in der DMZ, fw1 im Internet) maskiert wurde.
+Zum Nachweis, dass das IP-Masquerading funtioniert, wurde von pc01.firma-a.f223 ein Ping-Befehl auf 10.1.0.1 (net1.internet.f223) ausgeführt. Der Netzwerkverkehr dieses Ping-Befehls wurde jeweils in der DMZ (Abb. \ref{fig:ws_dmz}) und im Internet (Abb. \ref{fig:ws_internet}) mit Wireshark mitgeschnitten. Dabei ist sichtbar, dass die Quell-IP-Adresse beim Ping-Request jeweils mit der IP der zuletzt passierten Firewall (fw2 in der DMZ, fw1 im Internet) maskiert wurde.
 
 \begin{figure}[h!]
 	\centering
@@ -87,7 +87,7 @@ Zudem wurde geprüft, ob bei bestehender VPN-Verbindung der Computer pc01.firma-
 
 
 Um zeigen zu können, dass die Verschlüsselung der VPN-Verbindung funktioniert, wurde ein Mitschnitt der Ping-Nachricht, von lap01 mit aktiver VPN-Verbindung zu pc01, mit Hilfe des Programms Wireshark aufgezeichnet.
-Abbildung \ref{vpn:ws_lap01-ping-pc01} zeigt dabei ein Packet des Pings. Hierbei lässt sich gut die Konfiguration erkennen. Als Übertragungsprotokoll wurde UDP verwendet, was die Abbildung bestätigt. Des Weiteren lässt sich zeigen, dass die Packete von lap01 mit dessen öffentlicher IP-Adresse \texttt{10.1.0.21} von einem beliebigen Port \texttt{39577} an den VPN-Server mit der Adresse (DMZ) \texttt{192.168.40.240} an Port \texttt{1195}, welches der konfigurierte Port ist, gesendet werden. Das eigentliche ICMP-Packet an pc01, kann hierbei nicht erkannt werden, da es sich verschlüsselt in diesem Packet befindet.
+Abbildung \ref{vpn:ws_lap01-ping-pc01} zeigt dabei ein Paket des Pings. Hierbei lässt sich gut die Konfiguration erkennen. Als Übertragungsprotokoll wurde UDP verwendet, was die Abbildung bestätigt. Des Weiteren lässt sich zeigen, dass die Pakete von lap01 mit dessen öffentlicher IP-Adresse \texttt{10.1.0.21} von einem beliebigen Port \texttt{39577} an den VPN-Server mit der Adresse (DMZ) \texttt{192.168.40.240} an Port \texttt{1195}, welches der konfigurierte Port ist, gesendet werden. Das eigentliche ICMP-Paket an pc01, kann hierbei nicht erkannt werden, da es sich verschlüsselt in diesem Paket befindet.
 
 \paragraph{DNS-Server-Konfiguration}
 
@@ -102,7 +102,7 @@ Abschließend wurde noch die DNS-Server-Konfiguration geprüft, denn wie bereits
 
 Dies kann mit Hilfe des Programms \texttt{nslookup} verifiziert werden. Der erste, sowie der letzte Aufruf in Abbildung \ref{vpn:lap01_nslookup} erfolgte jeweils mit nicht aktiver VPN-Verbindung. Zum Test wurde die Domain \texttt{mail.firma-a.f223} verwendet, welche in beiden genannten DNS-Servern eingetragen ist.
 
-Hierbei lässt sich erkennen, dass bei nicht aktiver VPN jeweils der DNS-Server mit der IP-Adresse 10.1.0.1 verwendet wurde, sprich der net1 Server. Des Weiteren lässt sich erkennen, dass dieser die Domain auf die äußere IP-Adresse von fw1 auflöst, was korrekt ist.
+Hierbei lässt sich erkennen, dass bei nicht aktiver VPN jeweils der DNS-Server mit der IP-Adresse 10.1.0.1 verwendet wurde, also der net1 Server. Des Weiteren lässt sich erkennen, dass dieser die Domain auf die äußere IP-Adresse von fw1 auflöst, was korrekt ist.
 
 Der mittlere Eintrag wurde mit aktiver VPN-Verbindung durchgeführt. Hierbei lässt sich erkennen, dass diesmal der Firmeneigenen DNS-Server mit der IP-Adresse \texttt{192.168.40.1} verwendet wird. Zudem löst der DNS-Server die Domain ebenfalls auf diese IP-Adresse auf, da sich der Webserver auf dem gleichen Server befindet.
 
