@@ -1,5 +1,5 @@
 \chapter{Firewall}\label{fw}
-Die Firewall wird in dem Praktikum mit IPTables von Linux realisiert. Dies ermöglicht das Aufstellen von Regeln, welche in Tabellen abgelegt werden, um Verbindungen zwischen zwei Netzen zu kontrollieren. Wenn ein Paket die Firewall erreicht, dann checkt die Firewall sequentiell die einzelnen Regeln. Wenn eine der Regeln zutrifft, dann wird das Paket entweder mittels ACCEPT akzeptiert oder mittels DROP fallengelassen. Bei ACCEPT wird das Paket weiter gereicht und bei DROP wird das Paket einfach fallen gelassen und der Zielrechner erhält nicht das Paket. Wenn keine Regel zutrifft, dann wird die Default Policy angewandt. Diese kann wiederum auf DROP und ACCEPT gesetzt sein. 
+Die Firewall wird in dem Praktikum mit IPTables von Linux realisiert. Dies ermöglicht das Aufstellen von Regeln, welche in Tabellen abgelegt werden, um Verbindungen zwischen zwei Netzen zu kontrollieren. Wenn ein Paket die Firewall erreicht, dann checkt die Firewall sequentiell die einzelnen Regeln. Wenn eine der Regeln zutrifft, dann wird das Paket entweder mittels ACCEPT akzeptiert oder mittels DROP fallengelassen. Bei ACCEPT wird das Paket weiter gereicht und bei DROP wird das Paket einfach fallen gelassen und der Zielrechner erhält nicht das Paket. Wenn keine Regel zutrifft, dann wird die Default Policy angewandt. Diese kann wiederum auf DROP und ACCEPT gesetzt sein.
 \begin{figure}
 	\centering
 		\includegraphics[width=1.00\textwidth]{figures/firewall_uebersicht.PNG}
@@ -19,16 +19,16 @@ In Abbildung \ref{fig:firewall_uebersicht} ist zu sehen, dass es verschiedene Ta
 	\item OUTPUT \\
 	Hierbei handelt es sich um ein Paket, welches von einem lokalen Prozess abgesendet wird.
 \end{itemize}
-Die Regeln zur Beurteilung eines Paketes beschränken sich auf die OSI-Schichten 3 und 4. Somit hat man Zugriff auf die Übertragungsflags, IP-Adressen, Ports und die zugehörigen Netzwerkinterfaces. IPTables ermöglicht verbindungsorientierte Paketfilter, somit kann zum Beispiel überprüft werden ob eine Verbindung related ist, dass heißt es wird eine Unterverbindung aufgebaut, wo schon eine Verbindung zwischen den Rechnern besteht. Diese neue Verbindung hat in der Regel einen anderen Port. Dieser wird von vielen Programmen zufällig bestimmt und somit muss die Firewall Verbindungsaufbau zwischen "`New"' und "`Related"' unterscheiden können. Des weiteren ermöglicht IPTables eine NAT mit Masquerade Funktion. Das bedeutet es versteckt die Rechner von einem Netzwerk vor dem anderen Netzwerk.
+Die Regeln zur Beurteilung eines Paketes beschränken sich auf die OSI-Schichten 3 und 4. Somit hat man Zugriff auf die Übertragungsflags, IP-Adressen, Ports und die zugehörigen Netzwerkinterfaces. IPTables ermöglicht verbindungsorientierte Paketfilter, somit kann zum Beispiel überprüft werden ob eine Verbindung related ist, dass heißt es wird eine Unterverbindung aufgebaut, wo schon eine Verbindung zwischen den Rechnern besteht. Diese neue Verbindung hat in der Regel einen anderen Port. Dieser wird von vielen Programmen zufällig bestimmt und somit muss die Firewall Verbindungsaufbau zwischen "`New"' und "`Related"' unterscheiden können. Des Weiteren ermöglicht IPTables eine NAT mit Masquerade Funktion. Das bedeutet es versteckt die Rechner von einem Netzwerk vor dem anderen Netzwerk.
 
 \section{Stateful - Stateless}
 Es gibt grundlegend zwei verschiedene Arten von Firewalls, darunter fallen stateful- und stateless Firewalls. Eine stateless Firewall kann nur Pakete filtern anhand der Paketinformationen und kann somit keine weiteren Daten zur Beurteilung eines Paketes heranziehen. Eine stateful Firewall hingegen kann Daten zu bestehenden Verbindungen speichern. Dies ermöglicht z.B., dass neue Verbindungen aus einer schon bestehenden Verbindung aufgebaut werden können, wobei der Port ein anderer sein kann. Somit kann eine neue Verbindung von einer neuen Unterverbindung unterschieden werden. Ebenso kann eine stateful Firewall effektiver DoS Angriffe abwehren, weil sie zum Beispiel speichern kann wie häufig von einem Rechner eine neue Verbindung aufgebaut wurde und kann somit nach einer bestimmten Anzahl von Verbindungen alle Pakete fallen lassen. Allgemein sind stateless Firewalls schneller und einfacher zu handhaben, bieten hingegen nicht die Möglichkeiten einer stateful Firewall. IPTables ist eine stateful Firewall und bietet somit mehrere States anhand dessen die Filterregeln aufgestellt werden können.
 
 \subsection{IPTables - States}
 Wichtiger Bestandteil einer Filterregel sind die States. Folgend ist eine kurze Auflistung der verschiedenen States und wann diese einem Paket zugeordnet werden.
-\begin{itemize} 
+\begin{itemize}
 	\item NEW \\
-	Hierbei handelt es ich um ein Paket, welches eine neue Verbindung aufbaut. Somit ist es immer das erste Paket einer Verbindung.
+	Hierbei handelt es sich um ein Paket, welches eine neue Verbindung aufbaut. Somit ist es immer das erste Paket einer Verbindung.
 	\item ESTABLISHED \\
 	Hierbei handelt es sich um Pakete welche einer bestehenden Verbindung angehören.
 	\item RELATED \\
@@ -37,10 +37,10 @@ Wichtiger Bestandteil einer Filterregel sind die States. Folgend ist eine kurze 
 	Hierbei handelt es sich um Pakete, deren State nicht erkannt werden kann.
 	\item UNTRACKED \\
 	Hierbei handelt es sich um Verbindungen welche nicht Stateful gespeichert werden. Dies kann mittels einer "`raw table"' zu bestimmten Verbindungen zugewiesen werden. Dann sind alle Pakete dieser Verbindung mit dem State UNTRACKED.
-\end{itemize} 
+\end{itemize}
 
 \section{Anforderungen}
-In dem Praktikumsaufbau gibt es zwei Firewalls. Hierbei handelt es sich um eine Äußere Firewall, welche wie in Abbildung \ref{fig:netzplan} zu erkennen die Verbindungen zwischen der DMZ und dem Internet regelt. Die Rechner aus der DMZ werden vor Rechnern aus dem Internet versteckt. Die innere Firewall hat dabei dieselben Aufgaben nur ist sie zwischen der DMZ und dem Firmennetzwerk platziert.
+Im Praktikumsaufbau gibt es zwei Firewalls. Hierbei handelt es sich um eine äußere Firewall, welche wie in Abbildung \ref{fig:netzplan} zu erkennen die Verbindungen zwischen der DMZ und dem Internet regelt. Die Rechner aus der DMZ werden vor Rechnern aus dem Internet versteckt. Die innere Firewall hat dabei dieselben Aufgaben nur ist sie zwischen der DMZ und dem Firmennetzwerk platziert.
 
 \subsection{Äußere Firewall (FW1)}
 \begin{itemize}
@@ -55,24 +55,24 @@ In dem Praktikumsaufbau gibt es zwei Firewalls. Hierbei handelt es sich um eine 
 \item Masquerading von dem Firmennetz zur DMZ. Somit dürfen die IP Adressen der Rechner aus dem Firmennetz in der DMZ nicht erkennbar sein, sondern als IP Adresse ist die der Firewall zu sehen.
 \item Es dürfen keine neuen Verbindungen von der DMZ in das interne Firmennetz aufgebaut werden.
 \item Rechner aus dem Firmen internen Netzwerk dürfen neue Verbindungen zur DMZ und dem Internet aufbauen.
-\item Auf der inneren Firewall läuft der VPN Dienst und dieser muss aus dem Internet erreichbar sein.	
+\item Auf der inneren Firewall läuft der VPN Dienst und dieser muss aus dem Internet erreichbar sein.
 \end{itemize}
 
 \section{Implementierung}
 Damit die Praktikumsaufgabe reibungslos bearbeitet werden kann, wurde zu Anfang das NAT/Masquerading eingerichtet. Daraufhin wurde das VPN eingerichtet und getestet. Und sobald alle Funktionalitäten geprüft waren, wurde der Paketfilter eingerichtet. Durch diese Reihenfolge konnte sichergestellt werden, dass der Paketfilter von der Firewall nicht die Funktionalität des VPN Dienstes stört.
 
-IPTables speichert seine Tabelleneinträge nur im Arbeitsspeicher, deswegen sind die Einträge welche hinzugefügt werden nach einem Neustart des Rechners wieder verschwunden. Damit die Einträge gespeichert werden, müssen diese mittels dem iptables-save Befehl in eine Datei gespeichert werden. 
+IPTables speichert seine Tabelleneinträge nur im Arbeitsspeicher, deswegen sind die Einträge welche hinzugefügt werden nach einem Neustart des Rechners wieder verschwunden. Damit die Einträge gespeichert werden, müssen diese mittels dem iptables-save Befehl in eine Datei gespeichert werden.
 \begin{lstlisting}
 iptables-save > /etc/iptables.rules
 \end{lstlisting}
-Durch diesen Befehl werden alle IPTables Einträge in /etc/iptables.rules gespeichert. Damit nach einem Neustart diese Einträge auch geladen werden, muss unter /etc/network/if-pre-up.d/ ein Skript erstellt werden, welches die gespeicherten Einträge mittels iptables-restore aus der Datei lädt. Debian führt alles ausführbaren Skripte in dem Ordner if-pre-up.d aus bevor die Netzwerkdienste gestartet werden. Unser Skript zum laden der IPTables Regeln sieht wie folgt aus:
+Durch diesen Befehl werden alle IPTables Einträge in /etc/iptables.rules gespeichert. Damit nach einem Neustart diese Einträge auch geladen werden, muss unter /etc/network/if-pre-up.d/ ein Skript erstellt werden, welches die gespeicherten Einträge mittels iptables-restore aus der Datei lädt. Debian speichert ebenfalls ausführbare Skripte im if-pre-up.d Ordner, die vor dem Start der Netzwerkdienste ausgeführt werden müssen. Unser Skript zum laden der IPTables Regeln sieht wie folgt aus:
 \begin{lstlisting}[caption={/etc/network/if-pre-up.d/iptables}]
 iptables-restore < /etc/iptables.rules
 \end{lstlisting}
-Mit dem Befehl "chmod +x" wurde bei dem Skript das ausführbar Flag gesetzt. Somit werden die IPTables Regeln aus der Datei /etc/iptables.rules bei jedem Start des Rechners geladen. Dadurch können die IPTables mit normalen Befehlen eingerichtet werden und durch den iptables-save Befehl gespeichert werden. Dieses Konfiguration mit dem Skript wurde auf beiden Rechnern eingerichtet.
+Mit dem Befehl \texttt{chmod +x} wurde bei dem Skript das ausführbar Flag gesetzt. Somit werden die IPTables Regeln aus der Datei /etc/iptables.rules bei jedem Start des Rechners geladen. Dadurch können die IPTables mit dem normalen \texttt{iptables} Befehlen eingerichtet werden und durch den \texttt{iptables-save} Befehl gespeichert werden. Die Konfiguration der Firewall durch aufrufen des Skripts, wurde auf beiden Firewalls so eingerichtet.
 
 \subsection{Default Policy}
-In dem Praktikumsszenario handelt es sich um ein Firmennetzwerk, deswegen wurde als Default-Policy auf DROP gesetzt. Mit folgenden Befehlen:
+In dem Praktikumsszenario handelt es sich um ein Firmennetzwerk, deswegen wurde die Default-Policy auf DROP gesetzt. Mit folgenden Befehlen:
 \begin{lstlisting}[caption={Befehle für Default Policy}]
 iptables -P FORWARD DROP
 iptables -P OUTPUT DROP
@@ -81,7 +81,7 @@ iptables -P INPUT DROP
 Hierbei muss wenn ein neuer Dienst eingerichtet wird, dieser explizit in der Firewall eingetragen werden, damit dieser auch Problemlos funktioniert.
 
 \subsection{ICMP}
-Das Internet Control Message Protkoll dient dazu, Informationen und Fehlermeldungen über das Netzwerk zu übertragen. Wenn zum Beispiel ein Paket verworfen wird, dann kann dies mittels einer ICMP Nachricht demjenigen der versucht eine Verbindung aufzubauen mitgeteilt werden. Diese Informationen sind zur Wartung und zum Testen eines Systems sehr praktisch. Sie können aber auch für einen Angreifer interessant sein. Auf diesen Rechnern wurden diese Pakete erlaubt, damit mittels "Ping" getestet werden kann, welche Rechner erreichbar sind. Somit wurden folgende Regeln für die Input Kette erstellt.
+Das Internet Control Message Protkoll dient dazu, Informationen und Fehlermeldungen über das Netzwerk zu übertragen. Wenn zum Beispiel ein Paket verworfen wird, dann kann dies mittels einer ICMP Nachricht demjenigen der versucht eine Verbindung aufzubauen mitgeteilt werden. Diese Informationen sind zur Wartung und zum Testen eines Systems sehr praktisch. Sie können aber auch für einen Angreifer interessant sein. Auf diesen Rechnern wurden diese Pakete erlaubt, damit mittels \texttt{ping} getestet werden kann, welche Rechner erreichbar sind. Somit wurden folgende Regeln für die Input Kette erstellt.
 \lstinputlisting[
     firstline=9,
     lastline=9,
@@ -117,7 +117,7 @@ Ebenso werden die udp Pakete welche für das VPN zuständig sind, an die innere 
     label = fw:fw1_iptables_forward,
     caption={FW1 iptables.rules - Paketfilter Forward}
 ]{code/fw1_iptables.rules}
-Somit werden alle Pakete akzeptiert, welche den state "`NEW"' haben und aus dem Internet auf den Webserver weitergeleitet werden. Das sind die Zeilen 3 bis 13 in der Auflistung \ref{fw:fw1_iptables_forward}. Die Zeilen 14 und 15 sind wiederum für die Pakete des VPN Dienstes zuständig. Die erste Zeile erlaubt Pakete von der DMZ zum Internet. Die zweite Zeile erlaubt bei schon aufgebauten Verbindungen, dass diese Pakete nicht verworfen werden. Somit sind alle Pakete welche weitergeleitet werden für die äußere Firewall eingerichtet. 
+Somit werden alle Pakete akzeptiert, welche den state "`NEW"' haben und aus dem Internet auf den Webserver weitergeleitet werden. Das sind die Zeilen 3 bis 13 in der Auflistung \ref{fw:fw1_iptables_forward}. Die Zeilen 14 und 15 sind wiederum für die Pakete des VPN Dienstes zuständig. Die erste Zeile erlaubt Pakete von der DMZ zum Internet. Die zweite Zeile erlaubt bei schon aufgebauten Verbindungen, dass diese Pakete nicht verworfen werden. Somit sind alle Pakete welche weitergeleitet werden für die äußere Firewall eingerichtet.
 
 Es fehlen noch die lokalen Prozesse der FW1. Diese Pakete erreichen die Kette Input und Output. In der Auflistung \ref{fw:fw1_iptables_input} sind die Paketfilterregeln für die Input Kette zu sehen.
 \lstinputlisting[
@@ -126,7 +126,7 @@ Es fehlen noch die lokalen Prozesse der FW1. Diese Pakete erreichen die Kette In
     label = fw:fw1_iptables_input,
     caption={FW1 iptables.rules - Paketfilter input}
 ]{code/fw1_iptables.rules}
-Darunter befindet sich in der ersten Zeile, dass Pakete welche einer schon bestehenden Verbindung angehören akzeptiert werden. Mit der zweiten Zeile werden neue Pakete aus der DMZ auf einen lokalen Prozess erlaubt. Die zwei letzten Zeilen erlauben das loopback und ICMP Pakete. Pakete für loopback werden erzeugt, wenn man zum Beispiel "`ping localhost"' ausführt. Diese Pakete haben als Netzwerkinterface "`lo"'. 
+Darunter befindet sich in der ersten Zeile die Pakete, welche einer schon bestehenden Verbindung angehören, welche akzeptiert werden müssen. Mit der zweiten Zeile werden neue Pakete aus der DMZ auf einen lokalen Prozess erlaubt. Die zwei letzten Zeilen erlauben einerseits Pakete über die loopback-Schnittstelle und andererseits ICMP Pakete. Pakete für loopback werden erzeugt, wenn man zum Beispiel "`ping localhost"' ausführt. Diese Pakete haben als Netzwerkinterface "`lo"'.
 
 Zum Schluss noch die Regeln für die OUTPUT Kette.
 \lstinputlisting[
@@ -138,7 +138,7 @@ Zum Schluss noch die Regeln für die OUTPUT Kette.
 In der Auflistung \ref{fw:fw1_iptables_output} ist zu erkennen, dass alle Verbindungen welche von einem lokalen Prozess ausgehen erlaubt werden.
 
 \subsection{Implementierung FW2 (Firmennetz - DMZ)}
-Bei dieser Firewall handelt es sich um die Verbindung zwischen dem firmeninternen Netzwerk und der DMZ. Da keinerlei Dienste aus dem firmeninternen Netzwerk von der DMZ erreichbar sein dürfen, gibt es keine Prerouting Regeln, welche dieses erlauben würden. Somit beschränken sich die NAT Regeln nur auf das Masquerading. 
+Bei dieser Firewall handelt es sich um die Verbindung zwischen dem firmeninternen Netzwerk und der DMZ. Da keinerlei Dienste aus dem firmeninternen Netzwerk von der DMZ erreichbar sein dürfen, gibt es keine Prerouting Regeln, welche dieses erlauben würden. Somit beschränken sich die NAT Regeln nur auf das Masquerading.
 Auf dem Rechner, auf dem die Firewall läuft, befindet sich jedoch der VPN Dienst. Somit muss dieser erreichbar sein. Hierfür müssen Regeln in der Input Kette des Paketfilters hinzugefügt werden. In der folgenden Auflistung sind die Regeln für die Input Kette:
 \lstinputlisting[
     firstline=15,
