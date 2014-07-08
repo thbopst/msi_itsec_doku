@@ -1,6 +1,6 @@
 \chapter{Verifikation}
 \section{Netzwerkkonfiguration}
-Die korrekte Konfiguration des Netzwerks konnte mittels des ifconfig-Befehls geprüft werden. 
+Die korrekte Konfiguration des Netzwerks konnte mittels des ifconfig-Befehls geprüft werden.
 
 \lstinputlisting[
     firstline=1,
@@ -30,7 +30,7 @@ Zur Verifikation der NAT-Funktionalität war es zunächst nötig zu prüfen, ob 
 	\label{fig:pc01_traceroute_net1}
 \end{figure}
 
-Zum Nachweis, dass das IP-Masquerading funtioniert, wurde von pc01.firma-a.f223 ein Ping-Befehl auf 10.1.0.1 (net1.internet.f223) ausgeführt. Der Netzwerkverkehr dieses Ping-Befehls wurde jeweils in der DMZ (Abb. \ref{fig:ws_dmz}) und im Internet (Abb. \ref{fig:ws_internet}) mit Wireshark mitgeschnitten. Dabei ist sichtbar, dass die Quell-IP-Adresse beim Ping-Request jeweils mit der IP der zuletzt passierten Firewall (fw2 in der DMZ, fw1 im Internet) maskiert wurde.
+Zum Nachweis, dass das IP-Masquerading funktioniert, wurde von pc01.firma-a.f223 ein Ping-Befehl auf 10.1.0.1 (net1.internet.f223) ausgeführt. Der Netzwerkverkehr dieses Ping-Befehls wurde jeweils in der DMZ (Abb. \ref{fig:ws_dmz}) und im Internet (Abb. \ref{fig:ws_internet}) mit Wireshark mitgeschnitten. Dabei ist sichtbar, dass die Quell-IP-Adresse beim Ping-Request jeweils mit der IP der zuletzt passierten Firewall (fw2 in der DMZ, fw1 im Internet) maskiert wurde.
 
 \begin{figure}[h!]
 	\centering

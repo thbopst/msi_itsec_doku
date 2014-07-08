@@ -103,14 +103,14 @@ iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
 Durch diesen Eintrag wird "`eth1"' als Output Netzwerkinterface für das Masquerading verwendet. Dieser Eintrag wird in die dafür zuständige NAT Tabelle eingetragen. Dies ist mittels -t nat zu erkennen.
 
 \subsection{Implementierung FW1 (DMZ - Internet)}
-Diese Firewall regelt die Verbindung zwischen der DMZ und dem Internet. Somit ist es wichtig, dass Pakete welche an bestimmten Ports ankommen, auch an den zutreffenden Server weitergeleitet werden. In diesem Praktikum ist das der Server mit dem DNS-Namen "`srv1.firma-a.f223"' mit der IP-Adresse "`192.168.40.1"'. Das bedeutet es müssen zuerst die Pakete welche an die Firewall ankommen in der Prerouting Kette weitergeleitet werden. In der Auflistung \ref{fw:fw1_iptables_prerouting} sind Einträge für die Nat Tabelle in der Kette Prerouting zu erkennen. Es wird anhand des ankommenden Netzwerkinterfaces und Port entschieden ob das Paket weitergeleitet wird an den Webserver. Hier wurden alle relevanten Ports eingetragen.
+Diese Firewall regelt die Verbindung zwischen der DMZ und dem Internet. Somit ist es wichtig, dass Pakete welche an bestimmten Ports ankommen, auch an den zutreffenden Server weitergeleitet werden. In diesem Praktikum ist das der Server mit dem DNS-Namen "`srv1.firma-a.f223"' mit der IP-Adresse "`192.168.40.1"'. Das bedeutet es müssen zuerst die Pakete welche an die Firewall ankommen in der Prerouting Kette weitergeleitet werden. In der Auflistung \ref{fw:fw1_iptables_prerouting} sind Einträge für die Nat Tabelle in der Kette Prerouting zu erkennen. Es wird anhand des Netzwerkinterfaces und des Ports, des Pakets entschieden, ob es an den Webserver weitergeleitet wird. Hier wurden alle relevanten Ports eingetragen.
 \lstinputlisting[
     firstline=35,
     lastline=48,
     label = fw:fw1_iptables_prerouting,
     caption={FW1 iptables.rules - NAT Prerouting}
 ]{code/fw1_iptables.rules}
-Ebenso werden die udp Pakete welche für das VPN zuständig sind, an die innere Firewall weitergeleitet mit der IP-Adresse "192.168.40.250". Diese Pakete welche weitergeleitet werden, kommen somit an die Paketfilter Regeln an der Kette Forward. Damit diese dort nicht einfach verworfen werden, müssen die Ports in dieser Kette ebenfalls eingetragen werden. Dies ist in folgenden Auflistung zu sehen.
+Ebenso werden die udp Pakete welche für das VPN zuständig sind, an die innere Firewall weitergeleitet mit der IP-Adresse "192.168.40.250". Die Pakete die weitergeleitet werden, kommen somit an die Paketfilter Regeln an der Kette Forward. Damit diese dort nicht einfach verworfen werden, müssen die Ports in dieser Kette ebenfalls eingetragen werden. Dies ist in folgenden Auflistung zu sehen.
 \lstinputlisting[
     firstline=10,
     lastline=24,
@@ -146,7 +146,7 @@ Auf dem Rechner, auf dem die Firewall läuft, befindet sich jedoch der VPN Diens
     label = fw:fw2_iptables_input,
     caption={FW2 iptables.rules - Paketfilter input}
 ]{code/fw2_iptables.rules}
-Äquivalent zur Firewall 1 ist loopback und ICMP erlaubt. Ebenso werden Pakete welche zu einer bestehenden Verbindung gehören, erlaubt. Neu hinzu kommt zu dieser Firewall, dass neue Pakete mit dem port 1195 und 1194, wenn sie am Netzwerkinterface eth1 ankommen, erlaubt werden. Dabei handelt es sich um die Ports für das VPN Client-to-Lan und Client-to-Client. Somit kann der lokale VPN Dienst erreicht werden.
+Äquivalent zur Firewall 1 ist loopback und ICMP erlaubt. Ebenso werden Pakete welche zu einer bestehenden Verbindung gehören, erlaubt. Neu hinzu kommt zu dieser Firewall, dass neue Pakete mit dem Port 1195 und 1194, wenn sie am Netzwerkinterface eth1 ankommen, erlaubt werden. Dabei handelt es sich um die Ports für die Client-to-LAN und die Client-to-Client VPN-Verbindung. Somit kann der lokale VPN Dienst erreicht werden.
 Damit die Rechner aus dem Firmennetz auf die DMZ zugreifen können, müssen noch zwei Forward Regeln hinzugefügt werden. In \ref{fw:fw2_iptables_forward} sind diese Regeln aufgelistet.
 \lstinputlisting[
     firstline=20,
